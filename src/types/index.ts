@@ -1,21 +1,6 @@
-export interface IProduct {
-    id: string;
-    title: string;
-    price: number;
-    description: string;
-    category: string;
-    image: string;
-  }
-  
-  export interface IOrder {
-    payment: string;
-    address: string;
-    email: string;
-    phone: string;
-    items: string[];
-  }
-  
-  export interface ICartItem {
-    productId: string;
-    quantity: number;
-  }
+// Главный экспорт всех типов
+export * from './models';
+export * from './views';
+export * from './base';
+export * from './api';
+export * from './events';

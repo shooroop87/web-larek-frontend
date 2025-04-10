@@ -226,8 +226,7 @@ EventEmitter — простой брокер событий.
 Методы:
 - updateCart(): void
 - bindEvents(): void
-
-removeProduct(productId: string): void
+- removeProduct(productId: string): void
 
 #### OrderPresenter
 
