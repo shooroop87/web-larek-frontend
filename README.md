@@ -54,14 +54,16 @@ yarn build
 
 В архитектуре приложения используем MVP-подход.
 
-Model (models/)
+### Model (models/)
+
 ProductModel — содержит данные о товаре.
 
 CartModel — хранит товары, добавленные в корзину.
 
 OrderModel — собирает данные заказа.
 
-View (components/views/)
+### View (components/views/)
+
 ProductCardView — карточка товара.
 
 ModalView — базовое модальное окно.
@@ -70,7 +72,8 @@ CartView — отображение корзины.
 
 OrderFormView — формы оформления заказа.
 
-Presenter (components/presenters/)
+### Presenter (components/presenters/)
+
 ProductPresenter — управляет отображением и взаимодействием с карточками товаров.
 
 CartPresenter — управляет корзиной.
@@ -82,7 +85,7 @@ OrderPresenter — обрабатывает оформление заказа.
 
 Компоненты подписываются на события (например, product:add, cart:remove, order:submit)
 
-Presenter вызывает события, View реагирует
+Presenter вызывает события, View реагирует.
 
 
 ## Базовые классы (base/)
