@@ -94,8 +94,10 @@ EventEmitter — простой брокер событий.
 
 ## Описание архтектуры проекта по слоям:
 
-Модель (Model)
-ProductModel
+### Модель (Model)
+
+#### ProductModel
+
 Отвечает за данные одного товара.
 
 Поля:
@@ -109,7 +111,8 @@ ProductModel
 Методы:
 нет логики, только хранение данных (используется как структура)
 
-CartModel
+#### CartModel
+
 Управляет состоянием корзины.
 
 Поля:
@@ -124,7 +127,8 @@ CartModel
 - getTotalPrice(): number — считает итоговую сумму.
 
 
-OrderModel
+#### OrderModel
+
 Хранит данные о текущем заказе.
 
 Поля:
@@ -139,8 +143,10 @@ OrderModel
 - isValidStepTwo(): boolean — проверка, что email и телефон указаны.
 - submit(): IOrder — собирает заказ и возвращает его в виде объекта.
 
-Интерфейс (View)
-ProductCardView
+### Интерфейс (View)
+
+#### ProductCardView
+
 Отображает одну карточку товара.
 
 Поля:
@@ -152,7 +158,7 @@ ProductCardView
 - bindClick(handler: () => void): void — вешает обработчик на клик по карточке.
 - setActive(isActive: boolean): void — визуально выделяет добавление в корзину.
 
-CartView
+#### CartView
 Показывает корзину и список товаров.
 
 Поля:
@@ -166,7 +172,7 @@ CartView
 - hide(): void
 
 
-OrderFormView
+#### OrderFormView
 Показывает форму оформления заказа.
 
 Методы:
@@ -179,7 +185,8 @@ OrderFormView
 - clear(): void
 
 
-ModalView
+#### ModalView
+
 Универсальное модальное окно.
 
 Поля:
@@ -193,7 +200,9 @@ ModalView
 - bindClose(handler: () => void): void
 
 ### Презентеры (Presenter)
-ProductPresenter
+
+#### ProductPresenter
+
 Управляет отображением карточек товаров и взаимодействием с модалкой.
 
 Поля:
@@ -205,7 +214,8 @@ ProductPresenter
 - showProduct(product: IProduct): void
 - bindEvents(): void — подписка на клики, открытие товара, покупку.
 
-CartPresenter
+#### CartPresenter
+
 Управляет корзиной и взаимодействием с CartModel.
 
 Поля:
@@ -219,7 +229,8 @@ CartPresenter
 
 removeProduct(productId: string): void
 
-OrderPresenter
+#### OrderPresenter
+
 Управляет процессом оформления заказа.
 
 Поля:
@@ -235,7 +246,9 @@ OrderPresenter
 - bindEvents(): void
 
 ### Базовые классы (components/base/)
-ViewComponent
+
+#### ViewComponent
+
 Абстрактный базовый класс для всех View
 
 Поля:
@@ -245,7 +258,8 @@ ViewComponent
 - bind(selector: string): HTMLElement — упрощённый поиск элементов.
 - toggle(show: boolean): void
 
-EventEmitter
+#### EventEmitter
+
 Служит брокером событий между компонентами.
 
 Поля:
