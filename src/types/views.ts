@@ -32,6 +32,7 @@ export interface IOrderFormView {
     clear(): void;
 }
 
+// Интерфейс отображения компонента с универсальным типом данных
 export interface IViewComponent<T> {
     render(data: T): HTMLElement;
     toggle(visible: boolean): void;

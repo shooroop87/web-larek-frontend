@@ -5,7 +5,7 @@ export enum ViewEvents {
     CartRemove = 'cart:remove',
     OrderNext = 'order:next',
 }
-  
+
 // Перечисление событий Model слоя
 export enum ModelEvents {
     ProductAdd = 'product:add',
