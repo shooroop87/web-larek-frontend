@@ -1,26 +1,24 @@
 import { IProduct, ICartItem } from './models';
 
 // Интерфейс карточки товара
-export interface IProductCardView {
-    render(product: IProduct): void;
-    setActive(active: boolean): void;
+export interface IProductCardView extends IViewComponent<IProduct> {
     bindClick(handler: () => void): void;
+    setActive(active: boolean): void;
 }
 
 // Интерфейс корзины
-export interface ICartView {
-    render(items: ICartItem[]): void;
+export interface ICartView extends IViewComponent<ICartItem[]> {
     bindRemove(handler: (id: string) => void): void;
     show(): void;
     hide(): void;
 }
 
 // Интерфейс модального окна
-export interface IModalView {
+export interface IModalView extends IViewComponent<HTMLElement> {
     setContent(content: HTMLElement): void;
+    bindClose(handler: () => void): void;
     show(): void;
     hide(): void;
-    bindClose(handler: () => void): void;
 }
 
 // Интерфейс формы заказа
@@ -32,4 +30,9 @@ export interface IOrderFormView {
     bindSubmit(handler: () => void): void;
     showError(message: string): void;
     clear(): void;
+}
+
+export interface IViewComponent<T> {
+    render(data: T): HTMLElement;
+    toggle(visible: boolean): void;
 }

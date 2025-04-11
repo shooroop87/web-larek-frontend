@@ -4,6 +4,15 @@
 Web-ларёк — это учебный интернет-магазин с товарами для веб-разработчиков. Пользователь может просматривать товары, добавлять их в корзину и оформлять заказ.
 Проект реализован на основе паттерна **MVP (Model-View-Presenter)** с акцентом на слабую связанность и масштабируемость.
 
+## Архитектура проекта
+
+Проект реализован по паттерну **MVP (Model-View-Presenter)**:
+- `Model` — отвечает за хранение и обработку данных;
+- `View` — отображает интерфейс;
+- `Presenter` — посредник между Model и View, управляет бизнес-логикой.
+
+Компоненты взаимодействуют через **EventEmitter** (брокер событий).
+
 ## Используемый стек:
 
 - HTML
@@ -11,265 +20,229 @@ Web-ларёк — это учебный интернет-магазин с то
 - TypeScript
 - Webpack
 
-## Структура проекта:
-- src/ — исходные файлы проекта
-- src/components/ — папка с JS компонентами
-- src/components/base/ — папка с базовым кодом
-
-## Важные файлы:
-- src/pages/index.html — HTML-файл главной страницы
-- src/types/index.ts — файл с типами
-- src/index.ts — точка входа приложения
-- src/scss/styles.scss — корневой файл стилей
-- src/utils/constants.ts — файл с константами
-- src/utils/utils.ts — файл с утилитами
+## Структура проекта
+- `src/` — исходные файлы проекта
+- `src/components/` — UI-компоненты и логика
+- `src/components/base/` — базовые абстракции и утилиты
+- `src/types/` — типы и интерфейсы
+- `src/pages/index.html` — разметка приложения
+- `src/index.ts` — корневой файл инициализации
 
 ## Инструкция по сборке и запуску проекта
-Для установки и запуска проекта необходимо выполнить команды
 
-```
+```bash
 npm install
 npm run start
-```
-
-или
-
-```
+# или
 yarn
 yarn start
 ```
-## Сборка
 
-```
+## 📂 Сборка
+```bash
 npm run build
-```
-
-или
-
-```
+# или
 yarn build
 ```
 
-## Архитектура приложения
 
-В архитектуре приложения используем MVP-подход.
+## Типы данных
 
-### Model (models/)
+### Данные от API
+```ts
+interface IProduct {
+  id: string;
+  title: string;
+  price: number;
+  description: string;
+  category: string;
+  image: string;
+}
+```
 
-ProductModel — содержит данные о товаре.
+### Данные заказа
+```ts
+interface IOrder {
+  payment: string;
+  address: string;
+  email: string;
+  phone: string;
+  items: string[];
+}
+```
 
-CartModel — хранит товары, добавленные в корзину.
+### Корзина
+```ts
+interface ICartItem {
+  productId: string;
+  quantity: number;
+}
+```
 
-OrderModel — собирает данные заказа.
+## Базовые классы (components/base/)
 
-### View (components/views/)
+### Component<T>
+Абстрактный базовый класс для компонентов отображения.
 
-ProductCardView — карточка товара.
+Свойства:
+- `protected readonly container: HTMLElement`
 
-ModalView — базовое модальное окно.
+Конструктор:
+```ts
+protected constructor(container: HTMLElement)
+```
 
-CartView — отображение корзины.
-
-OrderFormView — формы оформления заказа.
-
-### Presenter (components/presenters/)
-
-ProductPresenter — управляет отображением и взаимодействием с карточками товаров.
-
-CartPresenter — управляет корзиной.
-
-OrderPresenter — обрабатывает оформление заказа.
-
-## Взаимодействие компонентов
-Все связи между компонентами организуются через EventEmitter (брокер событий).
-
-Компоненты подписываются на события (например, product:add, cart:remove, order:submit)
-
-Presenter вызывает события, View реагирует.
-
-
-## Базовые классы (base/)
-ViewComponent — абстрактный базовый класс для всех компонентов интерфейса.
-
-ModalComponent — базовый компонент модальных окон.
-
-EventEmitter — простой брокер событий.
-
-## Описание архтектуры проекта по слоям:
-
-### Модель (Model)
-
-#### ProductModel
-
-Отвечает за данные одного товара.
-
-Поля:
-- id: string
-- title: string
-- price: number
-- description: string
-- category: string
-- image: string
-
-#### CartModel
-
-Управляет состоянием корзины.
-
-Поля:
-- items: Map<string, ICartItem>
 
 Методы:
-- addItem(product: IProduct): void — добавляет товар в корзину.
-- removeItem(productId: string): void — удаляет товар из корзины.
-- hasItem(productId: string): boolean — проверяет наличие товара.
-- getItems(): ICartItem[] — возвращает все товары.
-- clear(): void — очищает корзину.
-- getTotalPrice(): number — считает итоговую сумму.
+```ts
+toggleClass(element: HTMLElement, className: string, force?: boolean): void
+setText(element: HTMLElement, value: unknown): void
+setDisabled(element: HTMLElement, state: boolean): void
+setHidden(element: HTMLElement): void
+setVisible(element: HTMLElement): void
+setImage(element: HTMLImageElement, src: string, alt?: string): void
+render(data?: Partial<T>): HTMLElement
+```
 
+### Model<T> (опционально)
+Базовый класс модели данных.
 
-#### OrderModel
+Свойства:
+- `protected data: T`
 
-Хранит данные о текущем заказе.
-
-Поля:
-- payment: string | null
-- address: string | null
-- email: string | null
-- phone: string | null
-- items: string[]
-
-Методы:
-- isValidStepOne(): boolean — проверка, что выбран способ оплаты и введён адрес.
-- isValidStepTwo(): boolean — проверка, что email и телефон указаны.
-- submit(): IOrder — собирает заказ и возвращает его в виде объекта.
-
-### Интерфейс (View)
-
-#### ProductCardView
-
-Отображает одну карточку товара.
-
-Поля:
-- element: HTMLElement — DOM-элемент карточки
-- product: IProduct
+Конструктор:
+```ts
+constructor(initialData: T)
+```
 
 Методы:
-- render(product: IProduct): void — рендерит карточку.
-- bindClick(handler: () => void): void — вешает обработчик на клик по карточке.
-- setActive(isActive: boolean): void — визуально выделяет добавление в корзину.
+```ts
+getData(): T
+setData(data: T): void
+```
 
-#### CartView
-
-Показывает корзину и список товаров.
-
-Поля:
-- element: HTMLElement
-- items: ICartItem[]
-
-Методы:
-- render(items: ICartItem[]): void — рендерит содержимое корзины.
-- bindRemove(handler: (id: string) => void): void — обработчик удаления товара.
-- show(): void
-- hide(): void
-
-
-#### OrderFormView
-
-Показывает форму оформления заказа.
-
-Методы:
-- renderStepOne(payment: string, address: string): void
-- renderStepTwo(email: string, phone: string): void
-- bindStepOneChange(handler: (data: {payment: string, address: string}) => void): void
-- bindStepTwoChange(handler: (data: {email: string, phone: string}) => void): void
-- bindSubmit(handler: () => void): void
-- showError(message: string): void
-- clear(): void
-
-
-#### ModalView
-
-Универсальное модальное окно.
-
-Поля:
-- element: HTMLElement
-- content: HTMLElement
-
-Методы:
-- setContent(content: HTMLElement): void
-- show(): void
-- hide(): void
-- bindClose(handler: () => void): void
-
-### Презентеры (Presenter)
-
-#### ProductPresenter
-
-Управляет отображением карточек товаров и взаимодействием с модалкой.
-
-Поля:
-- view: ProductCardView
-- modal: ModalView
-- emitter: EventEmitter
-
-Методы:
-- showProduct(product: IProduct): void
-- bindEvents(): void — подписка на клики, открытие товара, покупку.
-
-#### CartPresenter
-
-Управляет корзиной и взаимодействием с CartModel.
-
-Поля:
-- model: CartModel
-- view: CartView
-- emitter: EventEmitter
-
-Методы:
-- updateCart(): void
-- bindEvents(): void
-- removeProduct(productId: string): void
-
-#### OrderPresenter
-
-Управляет процессом оформления заказа.
-
-Поля:
-- model: OrderModel
-- view: OrderFormView
-- cartModel: CartModel
-- emitter: EventEmitter
-
-Методы:
-- startOrder(): void — запускает оформление.
-- nextStep(): void — переходит ко 2 шагу.
-- submit(): void — отправляет заказ, очищает корзину.
-- bindEvents(): void
-
-### Базовые классы (components/base/)
-
-#### ViewComponent
-
-Абстрактный базовый класс для всех View
-
-Поля:
-- element: HTMLElement
-
-Методы:
-- bind(selector: string): HTMLElement — упрощённый поиск элементов.
-- toggle(show: boolean): void
-
-#### EventEmitter
+### EventEmitter implements IEvents
 
 Служит брокером событий между компонентами.
 
-Поля:
-- listeners: { [eventName: string]: Function[] }
+Свойства:
+- `_events: Map<EventName, Set<Subscriber>>`
 
 Методы:
-- on(event: string, handler: Function): void
-- off(event: string, handler: Function): void
-- emit(event: string, payload?: any): void
+```ts
+on<T extends object>(event: EventName, callback: (data: T) => void): void
+off(event: EventName, callback: Subscriber): void
+emit<T extends object>(event: string, data?: T): void
+onAll(callback: (event: EmitterEvent) => void): void
+offAll(): void
+trigger<T extends object>(event: string, context?: Partial<T>): (data: T) => void
+```
+
+---
+
+## Модель (models/)
+
+### CatalogModel
+Хранит список товаров и ID выбранного товара.
+
+Свойства:
+- `products: IProduct[]`
+- `selectedProductId: string | null`
+
+Методы:
+```ts
+setProducts(products: IProduct[]): void
+getProducts(): IProduct[]
+selectProduct(id: string): void
+getSelected(): IProduct | null
+```
+
+### CartModel
+Управляет корзиной.
+
+Свойства:
+- `items: Map<string, ICartItem>`
+
+Методы:
+```ts
+addItem(product: IProduct): void
+removeItem(productId: string): void
+hasItem(productId: string): boolean
+getItems(): ICartItem[]
+clear(): void
+getTotalPrice(): number
+```
+
+### OrderModel
+Собирает данные заказа и валидирует шаги.
+
+Свойства:
+- `payment: string | null`
+- `address: string | null`
+- `email: string | null`
+- `phone: string | null`
+- `items: string[]`
+
+Методы:
+```ts
+isValidStepOne(): boolean
+isValidStepTwo(): boolean
+submit(): IOrder
+```
+
+---
+
+## View (components/views/)
+
+Каждый класс реализует `Component<T>` и отвечает за определённую часть интерфейса.
+
+- `ProductCardView` — карточка товара
+- `CartView` — корзина
+- `OrderFormView` — оформления заказа
+- `ModalView` — модальное окно
+
+---
+
+## Presenter (components/presenters/)
+
+### ProductPresenter
+Управляет карточками товаров и открытием модалки.
+
+### CartPresenter
+Управляет корзиной, обновляет представление и удаляет товары.
+
+### OrderPresenter
+Управляет шагами оформления заказа и отправкой данных.
+
+---
+
+## События приложения
+
+### События View
+- `product:click`
+- `modal:close`
+- `cart:remove`
+- `order:next`
+
+### События Model
+- `product:add`
+- `order:start`
+- `order:submit`
+
+---
+
+## Сервисы
+
+### WebLarekApi
+
+Сервисный клиент, использующий базовый класс `Api`.
+
+Методы:
+```ts
+getProducts(): Promise<IProduct[]>
+getProduct(id: string): Promise<IProduct>
+sendOrder(order: IOrder): Promise<{ success: boolean }>
+```
 
 ### Утилиты
 constants.ts
@@ -280,3 +253,7 @@ utils.ts
 - formatPrice(price: number): string
 - validateEmail(email: string): boolean
 - validatePhone(phone: string): boolean
+
+## Основной инициализатор (index.ts)
+
+Создаёт экземпляры моделей, вью, презентеров и связывает их через EventEmitter, а также запускает приложение.
