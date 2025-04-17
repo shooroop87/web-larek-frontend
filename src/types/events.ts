@@ -1,14 +1,25 @@
-// Перечисление событий View слоя
-export enum ViewEvents {
-    ProductClick = 'product:click',
-    ModalClose = 'modal:close',
-    CartRemove = 'cart:remove',
-    OrderNext = 'order:next',
-}
+import { IOrder, IProduct } from './models';
+import { IOrderResult } from './api';
 
-// Перечисление событий Model слоя
-export enum ModelEvents {
-    ProductAdd = 'product:add',
-    OrderStart = 'order:start',
-    OrderSubmit = 'order:submit',
+/**
+ * События приложения
+ */
+export interface IEvents {
+  // События каталога
+  'catalog:loaded': IProduct[];
+  
+  // События товара
+  'card:select': IProduct;
+  'card:add': string;
+  'card:remove': string;
+  
+  // События корзины
+  'basket:open': void;
+  'basket:changed': { count: number; total: number };
+  
+  // События заказа
+  'order:address': Pick<IOrder, 'address' | 'payment'>;
+  'order:contacts': Pick<IOrder, 'email' | 'phone'>;
+  'order:submit': IOrder;
+  'order:success': IOrderResult;
 }

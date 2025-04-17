@@ -1,13 +1,45 @@
-// Условный тип имени события
-export type EventName = string | RegExp;
-
-// Тип коллбэка подписчика события
-export type EventCallback<T = unknown> = (data: T) => void;
-
-// Интерфейс для брокера событий
-export interface IEventEmitter {
-    on<T = unknown>(event: EventName, callback: EventCallback<T>): void;
-    off(event: EventName, callback: EventCallback): void;
-    emit<T = unknown>(event: string, data?: T): void;
-    trigger<T = unknown>(event: string, context?: Partial<T>): (data: T) => void;
-}
+/**
+ * Интерфейс для объекта с уникальным идентификатором
+ */
+export interface IIdentifiable {
+    id: string;
+  }
+  
+  /**
+   * Тип для объектов с частичными свойствами
+   */
+  export type TPartial<T> = Partial<T>;
+  
+  /**
+   * Тип для пары ключ-значение
+   */
+  export type TKeyValue = Record<string, string | number | boolean>;
+  
+  /**
+   * Интерфейс для классов, создающих элементы по шаблону
+   */
+  export interface ICreatable<T> {
+    create(data?: T): HTMLElement;
+  }
+  
+  /**
+   * Интерфейс для классов с шаблонизацией
+   */
+  export interface ITemplatable<T> {
+    template: HTMLTemplateElement;
+    render(data: T): HTMLElement;
+  }
+  
+  /**
+   * Тип функции-обработчика события
+   */
+  export type EventHandler<T> = (event: T) => void;
+  
+  /**
+   * Интерфейс брокера событий
+   */
+  export interface IEventEmitter<T> {
+    on<K extends keyof T>(event: K, handler: EventHandler<T[K]>): void;
+    off<K extends keyof T>(event: K, handler: EventHandler<T[K]>): void;
+    emit<K extends keyof T>(event: K, data: T[K]): void;
+  }

@@ -7,6 +7,12 @@
     "allowJs": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true
   },
-  "include": ["src/**/*.ts", "src/types/*.d.ts"]
+  "include": ["src/**/*.ts", "src/types/*.d.ts"],
+  "exclude": ["node_modules", "dist"]
 }

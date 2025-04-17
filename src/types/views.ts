@@ -1,39 +1,41 @@
-import { IProduct, ICartItem } from './models';
+import { IOrder, IProduct } from './models';
 
-// Интерфейс карточки товара
-export interface IProductCardView extends IViewComponent<IProduct> {
-    bindClick(handler: () => void): void;
-    setActive(active: boolean): void;
+/**
+ * Интерфейс для базового компонента
+ */
+export interface IComponent<T> {
+  render(data?: T): HTMLElement;
 }
 
-// Интерфейс корзины
-export interface ICartView extends IViewComponent<ICartItem[]> {
-    bindRemove(handler: (id: string) => void): void;
-    show(): void;
-    hide(): void;
+/**
+ * Интерфейс для карточки товара
+ */
+export interface ICard extends IComponent<IProduct> {
+  setButtonText(text: string): void;
 }
 
-// Интерфейс модального окна
-export interface IModalView extends IViewComponent<HTMLElement> {
-    setContent(content: HTMLElement): void;
-    bindClose(handler: () => void): void;
-    show(): void;
-    hide(): void;
+/**
+ * Интерфейс модального окна
+ */
+export interface IModal {
+  open(): void;
+  close(): void;
+  render(data?: any): HTMLElement;
 }
 
-// Интерфейс формы заказа
-export interface IOrderFormView {
-    renderStepOne(payment: string, address: string): void;
-    renderStepTwo(email: string, phone: string): void;
-    bindStepOneChange(handler: (data: { payment: string; address: string }) => void): void;
-    bindStepTwoChange(handler: (data: { email: string; phone: string }) => void): void;
-    bindSubmit(handler: () => void): void;
-    showError(message: string): void;
-    clear(): void;
+/**
+ * Интерфейс формы
+ */
+export interface IForm<T> extends IComponent<T> {
+  isValid(): boolean;
+  getData(): T;
+  setData(data: T): void;
 }
 
-// Интерфейс отображения компонента с универсальным типом данных
-export interface IViewComponent<T> {
-    render(data: T): HTMLElement;
-    toggle(visible: boolean): void;
+/**
+ * Интерфейс для корзины
+ */
+export interface IBasket extends IModal {
+  setItems(items: IProduct[]): void;
+  setTotal(total: number): void;
 }

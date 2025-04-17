@@ -1,52 +1,53 @@
-// Данные одного товара
+/**
+ * Категории товаров
+ */
+export type ProductCategory = string;
+
+/**
+ * Товар из каталога
+ */
 export interface IProduct {
-    id: string;
-    title: string;
-    price: number | null; // для бесценного товара приходит null
-    description: string;
-    category: string;
-    image: string;
+  id: string;
+  title: string;
+  description?: string;
+  price: number | null;
+  category: ProductCategory;
+  image: string;
 }
 
-// Данные оформленного заказа
+/**
+ * Методы оплаты
+ */
+export type PaymentMethod = 'card' | 'cash';
+
+/**
+ * Информация о заказе
+ */
 export interface IOrder {
-    id?: string; // ответ от сервера содержит ID заказа
-    payment: string;
-    address: string;
-    email: string;
-    phone: string;
-    items: string[];
-}
-  
-// Ответ от API после оформления заказа
-export interface IOrderResult {
-    id: string;
-    total: number;
+  payment: PaymentMethod;
+  address: string;
+  email: string;
+  phone: string;
+  items: string[];
+  total: number;
 }
 
-export type FormData = Omit<IOrder, 'items' | 'id'>;
-export type FormErrors = Partial<Record<keyof FormData, string>>;
+/**
+ * Состояние приложения
+ */
+export interface IAppState {
+  catalog: IProduct[];
+  basket: IProduct[];
+  preview: IProduct | null;
+  order: IOrder;
 
-// Корзина
-export interface ICartItem {
-    productId: string;
-    quantity: number;
-}
-
-// Интерфейс модели корзины
-export interface ICartModel {
-    addItem(product: IProduct): void;
-    removeItem(productId: string): void;
-    hasItem(productId: string): boolean;
-    getItems(): ICartItem[];
-    clear(): void;
-    getTotalPrice(): number;
-}
-
-// Интерфейс модели каталога
-export interface ICatalogModel {
-    setProducts(products: IProduct[]): void;
-    getProducts(): IProduct[];
-    selectProduct(id: string): void;
-    getSelected(): IProduct | null;
+  setCatalog(items: IProduct[]): void;
+  getProductById(id: string): IProduct | null;
+  addToBasket(product: IProduct): void;
+  removeFromBasket(id: string): void;
+  clearBasket(): void;
+  setPreview(product: IProduct | null): void;
+  updateOrder(data: Partial<IOrder>): void;
+  getTotalPrice(): number;
+  clearOrder(): void;
 }
