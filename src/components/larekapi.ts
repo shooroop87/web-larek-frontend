@@ -2,27 +2,32 @@ import { Api } from './base/api';
 import { IProduct, IOrderData, IOrderResult } from '../types';
 
 export class LarekAPI extends Api {
-  private products: IProduct[] = [];
+    private products: IProduct[] = [];
+    private cdnUrl: string;
+
+    constructor(baseUrl: string, options: RequestInit = {}, cdnUrl?: string) {
+        super(baseUrl, options);
+        this.cdnUrl = cdnUrl || baseUrl; // fallback на baseUrl, если CDN не передан
+    }
 
   /**
    * Получение списка товаров
    */
   async getProducts(): Promise<IProduct[]> {
     try {
-      const response = await this.get('/product') as { 
-        total?: number, 
-        items?: IProduct[] 
+      const response = await this.get('/product/') as {
+        total: number;
+        items: IProduct[];
       };
-
+  
       const products = response.items || [];
-
-      // Обрабатываем изображения 
+  
       this.products = products.map(product => ({
         ...product,
         image: this.processImageUrl(product.image),
         price: product.price ?? null
       }));
-
+  
       return this.products;
     } catch (error) {
       console.error('Ошибка загрузки продуктов:', error);
@@ -34,11 +39,8 @@ export class LarekAPI extends Api {
    * Обработка URL изображений
    */
   private processImageUrl(imageUrl: string): string {
-    // Если URL уже абсолютный - возвращаем как есть
     if (imageUrl.startsWith('http')) return imageUrl;
-    
-    // Иначе добавляем базовый URL
-    return `${this.baseUrl}${imageUrl}`;
+    return `${this.cdnUrl}${imageUrl}`;
   }
 
   /**

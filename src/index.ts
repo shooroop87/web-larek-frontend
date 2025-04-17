@@ -20,21 +20,18 @@ import { OrderPresenter } from './components/OrderPresenter';
 import { IProduct } from './types';
 
 // Используем переменную из .env
-const API_URL = process.env.API_ORIGIN || '';
-const CDN_URL = process.env.API_ORIGIN || '';
+const API_URL = 'https://larek-api.nomoreparties.co/api/weblarek';
+const CDN_URL = 'https://larek-api.nomoreparties.co'; // для картинок, если нужно
 
 // Создание основных компонентов
 const eventEmitter = new EventEmitter();
-const api = new LarekAPI(
-  CDN_URL, 
-  API_URL, 
-  {
+const api = new LarekAPI(API_URL, {
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*'
     }
-  }
-);
+  }, CDN_URL);
+  
 const appState = new AppState();
 
 // Получение DOM-элементов
