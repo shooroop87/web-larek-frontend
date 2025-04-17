@@ -1,10 +1,8 @@
 import { Component } from './base/Component';
 import { EventEmitter } from './base/events';
+import { IProduct } from '../types';
 
-/**
- * Класс карточки товара
- */
-export class Card extends Component<any> {
+export class Card extends Component<HTMLElement> {
   protected _title: HTMLElement;
   protected _image: HTMLImageElement;
   protected _price: HTMLElement;
@@ -44,7 +42,7 @@ export class Card extends Component<any> {
       console.log('Card click, id:', id);
       
       // Собираем данные о товаре из DOM-элементов
-      const product = {
+      const product: IProduct = {
         id,
         title: this._title.textContent || '',
         price: this.extractPrice(this._price.textContent || ''),
@@ -71,14 +69,14 @@ export class Card extends Component<any> {
       
       if (this.container.dataset.inBasket === 'true') {
         // Если товар уже в корзине, удаляем его
-        this.eventEmitter.emit('card:remove', id);
+        this.eventEmitter.emit('card:remove', { id });
         this.container.dataset.inBasket = 'false';
         if (this._button) {
           this._button.textContent = 'В корзину';
         }
       } else {
         // Если товара нет в корзине, добавляем его
-        this.eventEmitter.emit('card:add', id);
+        this.eventEmitter.emit('card:add', { id });
         this.container.dataset.inBasket = 'true';
         if (this._button) {
           this._button.textContent = 'Удалить';
@@ -96,18 +94,9 @@ export class Card extends Component<any> {
   }
 
   /**
-   * Установить текст на кнопке
-   */
-  setButtonText(text: string): void {
-    if (this._button) {
-      this._button.textContent = text;
-    }
-  }
-
-  /**
    * Отрисовать карточку товара
    */
-  render(product): HTMLElement {
+  render(product: IProduct): HTMLElement {
     this.container.dataset.id = product.id;
     this.container.dataset.inBasket = String(!!product.inBasket);
     

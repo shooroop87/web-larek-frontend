@@ -1,78 +1,100 @@
 /**
- * Базовый компонент, от которого наследуются все компоненты приложения
+ * Абстрактный базовый класс для компонентов отображения
+ * @template T Тип данных для рендеринга
  */
 export abstract class Component<T> {
-    protected constructor(protected readonly container: HTMLElement) {}
+    // Корневой DOM-элемент компонента
+    protected readonly container: HTMLElement;
   
     /**
-     * Переключить класс у элемента
+     * Конструктор базового компонента
+     * @param container Корневой элемент компонента
+     */
+    constructor(container: HTMLElement) {
+      this.container = container;
+    }
+  
+    /**
+     * Переключение класса на элементе
+     * @param element Элемент для изменения класса
+     * @param className Имя класса
+     * @param force Принудительное добавление/удаление класса
      */
     toggleClass(element: HTMLElement, className: string, force?: boolean): void {
       element.classList.toggle(className, force);
     }
   
     /**
-     * Установить текстовое содержимое элемента
+     * Установка текстового содержимого элемента
+     * @param element Целевой элемент
+     * @param value Устанавливаемое значение
      */
-    setText(element: HTMLElement, text: string): void {
-      element.textContent = text;
+    setText(element: HTMLElement, value: unknown): void {
+      element.textContent = String(value);
     }
   
     /**
-     * Установить изображение с альтернативным текстом
+     * Блокировка/разблокировка элемента
+     * @param element Элемент для блокировки
+     * @param state Состояние блокировки
      */
-    setImage(element: HTMLImageElement, src: string, alt?: string): void {
-      element.src = src;
-      if (alt) {
-        element.alt = alt;
+    setDisabled(element: HTMLElement, state: boolean): void {
+      if (state) {
+        element.setAttribute('disabled', 'disabled');
+      } else {
+        element.removeAttribute('disabled');
       }
     }
   
     /**
-     * Очистить содержимое элемента
+     * Скрытие элемента
+     * @param element Элемент для скрытия
      */
-    clear(element: HTMLElement): void {
-      element.innerHTML = '';
-    }
-  
-    /**
-     * Скрыть элемент
-     */
-    hide(element: HTMLElement): void {
+    setHidden(element: HTMLElement): void {
       element.style.display = 'none';
     }
   
     /**
-     * Показать элемент
+     * Отображение элемента
+     * @param element Элемент для отображения
      */
-    show(element: HTMLElement, display: string = 'block'): void {
-      element.style.display = display;
+    setVisible(element: HTMLElement): void {
+      element.style.display = '';
     }
   
     /**
-     * Добавить обработчик события
+     * Установка изображения
+     * @param element Элемент изображения
+     * @param src Путь к изображению
+     * @param alt Альтернативный текст
      */
-    on<K extends keyof HTMLElementEventMap>(
-      element: HTMLElement,
-      eventName: K,
-      callback: (event: HTMLElementEventMap[K]) => void
-    ): void {
-      element.addEventListener(eventName, callback);
+    setImage(element: HTMLImageElement, src: string, alt?: string): void {
+      element.src = src;
+      if (alt) element.alt = alt;
     }
   
     /**
-     * Удалить обработчик события
+     * Добавление обработчика события
+     * @param element Элемент для добавления события
+     * @param event Название события
+     * @param handler Обработчик события
      */
-    off<K extends keyof HTMLElementEventMap>(
-      element: HTMLElement,
-      eventName: K,
-      callback: (event: HTMLElementEventMap[K]) => void
-    ): void {
-      element.removeEventListener(eventName, callback);
+    protected on(element: HTMLElement, event: string, handler: EventListener): void {
+      element.addEventListener(event, handler);
     }
   
     /**
-     * Отрисовать содержимое в элемент
+     * Удаление всех дочерних элементов
+     * @param element Родительский элемент
      */
-    abstract render(data?: T): HTMLElement;
+    protected clear(element: HTMLElement): void {
+      element.innerHTML = '';
+    }
+  
+    /**
+     * Метод рендеринга компонента
+     * @param data Данные для рендеринга
+     * @returns Корневой элемент компонента
+     */
+    abstract render(data?: Partial<T>): HTMLElement;
   }

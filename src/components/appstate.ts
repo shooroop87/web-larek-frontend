@@ -1,188 +1,112 @@
-import { EventEmitter } from './base/events';
+import { IProduct, IOrderData } from '../types';
 
-/**
- * Класс состояния приложения
- */
-export class AppState extends EventEmitter {
-  private _products: any[] = [];
-  private _basket: any[] = [];
-  private _preview: any | null = null;
-  private _order: any = {
-    payment: 'card',
-    address: '',
-    email: '',
-    phone: '',
-    items: [],
-    total: 0
-  };
+export class AppState {
+  private _catalog: IProduct[] = [];
+  private _basket: IProduct[] = [];
+  private _preview: IProduct | null = null;
+  private _order: Partial<IOrderData> = {};
 
   /**
-   * Установить список товаров из каталога
+   * Получение каталога товаров
    */
-  setCatalog(items: any[]): void {
-    this._products = items.map(item => ({
-      ...item,
-      inBasket: false
-    }));
-    
-    this.emit('catalog:loaded', this._products);
+  getCatalog(): IProduct[] {
+    return this._catalog;
   }
 
   /**
-   * Получить все товары
+   * Установка каталога товаров
    */
-  get catalog(): any[] {
-    return this._products;
+  setCatalog(items: IProduct[]): void {
+    this._catalog = items;
   }
 
   /**
-   * Получить товары в корзине
+   * Получение товара по ID
    */
-  get basket(): any[] {
+  getProductById(id: string): IProduct | undefined {
+    return this._catalog.find(product => product.id === id);
+  }
+
+  /**
+   * Получение корзины
+   */
+  getBasket(): IProduct[] {
     return this._basket;
   }
 
   /**
-   * Получить текущий просматриваемый товар
+   * Получение текущего превью товара
    */
-  get preview(): any | null {
+  getPreview(): IProduct | null {
     return this._preview;
   }
 
   /**
-   * Получить данные заказа
+   * Установка превью товара
    */
-  get order(): any {
-    return this._order;
-  }
-
-  /**
-   * Получить товар по ID
-   */
-  getProductById(id: string): any | null {
-    return this._products.find(item => item.id === id) || null;
-  }
-
-  /**
-   * Добавить товар в корзину
-   */
-  addToBasket(product: any): void {
-    // Находим товар в списке
-    const existingProduct = this._products.find(item => item.id === product.id);
-    
-    if (existingProduct) {
-      // Устанавливаем статус нахождения в корзине
-      existingProduct.inBasket = true;
-      
-      // Проверяем, нет ли товара уже в корзине
-      if (!this._basket.some(item => item.id === product.id)) {
-        this._basket.push(existingProduct);
-      }
-      
-      // Обновляем список идентификаторов товаров в заказе
-      this._order.items = this._basket.map(item => item.id);
-      
-      // Обновляем общую сумму заказа
-      this._order.total = this.getTotalPrice();
-      
-      // Оповещаем об изменении корзины
-      this.emit('basket:changed', {
-        count: this._basket.length,
-        total: this._order.total
-      });
-    }
-  }
-
-  /**
-   * Удалить товар из корзины
-   */
-  removeFromBasket(id: string): void {
-    // Находим товар в списке
-    const existingProduct = this._products.find(item => item.id === id);
-    
-    if (existingProduct) {
-      // Устанавливаем статус нахождения в корзине
-      existingProduct.inBasket = false;
-      
-      // Удаляем товар из корзины
-      this._basket = this._basket.filter(item => item.id !== id);
-      
-      // Обновляем список идентификаторов товаров в заказе
-      this._order.items = this._basket.map(item => item.id);
-      
-      // Обновляем общую сумму заказа
-      this._order.total = this.getTotalPrice();
-      
-      // Оповещаем об изменении корзины
-      this.emit('basket:changed', {
-        count: this._basket.length,
-        total: this._order.total
-      });
-    }
-  }
-
-  /**
-   * Очистить корзину
-   */
-  clearBasket(): void {
-    // Сбрасываем статус нахождения в корзине для всех товаров
-    this._products.forEach(product => {
-      if (product.inBasket) {
-        product.inBasket = false;
-      }
-    });
-    
-    // Очищаем корзину
-    this._basket = [];
-    
-    // Очищаем список идентификаторов товаров в заказе
-    this._order.items = [];
-    
-    // Обновляем общую сумму заказа
-    this._order.total = 0;
-    
-    // Оповещаем об изменении корзины
-    this.emit('basket:changed', {
-      count: 0,
-      total: 0
-    });
-  }
-
-  /**
-   * Установить предпросматриваемый товар
-   */
-  setPreview(product: any | null): void {
+  setPreview(product: IProduct): void {
     this._preview = product;
   }
 
   /**
-   * Обновить данные заказа
+   * Добавление товара в корзину
    */
-  updateOrder(data: any): void {
-    this._order = {
-      ...this._order,
-      ...data
-    };
+  addToBasket(product: IProduct): void {
+    if (!this._basket.some(item => item.id === product.id)) {
+      this._basket.push({...product, inBasket: true});
+      this.emitBasketChanged();
+    }
   }
 
   /**
-   * Очистить данные заказа
+   * Удаление товара из корзины
    */
-  clearOrder(): void {
-    this._order = {
-      payment: 'card',
-      address: '',
-      email: '',
-      phone: '',
-      items: [],
-      total: 0
-    };
+  removeFromBasket(id: string): void {
+    this._basket = this._basket.filter(item => item.id !== id);
+    this.emitBasketChanged();
   }
 
   /**
-   * Получить общую стоимость заказа
+   * Получение общей стоимости товаров в корзине
    */
   getTotalPrice(): number {
-    return this._basket.reduce((sum, item) => sum + (item.price || 0), 0);
+    return this._basket.reduce((total, item) => {
+      return total + (item.price ?? 0);
+    }, 0);
+  }
+
+  /**
+   * Обновление информации о заказе
+   */
+  updateOrder(data: Partial<IOrderData>): void {
+    this._order = { ...this._order, ...data };
+  }
+
+  /**
+   * Получение текущего заказа
+   */
+  getOrder(): Partial<IOrderData> {
+    return this._order;
+  }
+
+  /**
+   * Очистка корзины
+   */
+  clearBasket(): void {
+    this._basket = [];
+    this.emitBasketChanged();
+  }
+
+  /**
+   * Генерация события изменения корзины
+   */
+  private emitBasketChanged(): void {
+    const event = new CustomEvent('basket:changed', { 
+      detail: {
+        count: this._basket.length,
+        total: this.getTotalPrice()
+      } 
+    });
+    document.dispatchEvent(event);
   }
 }
