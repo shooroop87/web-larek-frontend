@@ -29,16 +29,18 @@ export class Modal implements IModal {
   }
 
   // открытие модального окна
-  open() {
+  open(): void {
     this.modalContainer.classList.add('modal_active');
     this.events.emit('modal:open');
   }
 
   // закрытие модального окна
   close() {
-    this.modalContainer.classList.remove('modal_active');
-    this.content = null; // очистка контента в модальном окне
-    this.events.emit('modal:close');
+    const activeModal = document.querySelector('.modal.modal_active') as HTMLElement;
+    if (activeModal) {
+      activeModal.classList.remove('modal_active');
+      this.events.emit('modal:close');
+    }
   }
 
   set locked(value: boolean) {

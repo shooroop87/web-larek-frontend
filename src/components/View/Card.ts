@@ -31,10 +31,11 @@ export class Card implements ICard {
     }
   }
 
-  protected setText(element: HTMLElement, value: unknown): string {
-    if (element) {
-      return element.textContent = String(value);
-    }
+  protected setText(element: HTMLElement, value: unknown): string | undefined {
+	if (element) {
+	  return element.textContent = String(value);
+	}
+	return undefined;
   }
 
   set cardCategory(value: string) {

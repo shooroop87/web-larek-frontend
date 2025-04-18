@@ -152,6 +152,25 @@ events.on('modal:close', () => {
   modal.locked = false;
 });
 
+/********** Навешиваем обработчики на уже существующие элементы в статичном модальном окне **********/
+
+document.querySelectorAll('.modal__close').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      modal.close();
+    });
+});
+  
+document.querySelectorAll('.card__button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      // Добавляем текущую карточку в корзину
+      if (dataModel.selectedСard) {
+        events.emit('card:addBasket');
+      } else {
+        console.warn('Нет выбранной карточки, чтобы добавить в корзину');
+      }
+    });
+});
+
 /********** Получаем данные с сервера **********/
 apiModel.getListProductCard()
   .then(function (data: IProductItem[]) {
@@ -159,3 +178,4 @@ apiModel.getListProductCard()
   })
   // .then(dataModel.setProductCards.bind(dataModel))
   .catch(error => console.log(error))
+
