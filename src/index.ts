@@ -159,17 +159,63 @@ document.querySelectorAll('.modal__close').forEach((btn) => {
       modal.close();
     });
 });
-  
-document.querySelectorAll('.card__button').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      // Добавляем текущую карточку в корзину
-      if (dataModel.selectedСard) {
-        events.emit('card:addBasket');
-      } else {
-        console.warn('Нет выбранной карточки, чтобы добавить в корзину');
-      }
-    });
-});
+
+
+// Работаем через таймаут, чтобы учесть загрузку стартовой карточки
+setTimeout(() => {
+  // Ищем стартовую карточку
+  const startupModal = document.querySelector('.modal_active');
+  if (startupModal) {
+    // Получаем данные из DOM
+    const cardTitle = startupModal.querySelector('.card__title')?.textContent || '';
+    const cardPrice = parseInt((startupModal.querySelector('.card__price')?.textContent || '0').replace(/\D/g, ''));
+    const cardCategory = startupModal.querySelector('.card__category')?.textContent || '';
+    const cardText = startupModal.querySelector('.card__text')?.textContent || '';
+    
+    // Создаем объект карточки
+    const startupCardData: IProductItem = {
+      id: 'startup-card-' + Date.now(),
+      title: cardTitle,
+      price: cardPrice,
+      category: cardCategory,
+      description: cardText,
+      image: ''
+    };
+    
+    // Устанавливаем карточку как выбранную
+    dataModel.selectedСard = startupCardData;
+    
+    // Удаляем существующие обработчики с кнопки закрытия
+    const closeButton = startupModal.querySelector('.modal__close');
+    if (closeButton) {
+      const newCloseButton = closeButton.cloneNode(true);
+      closeButton.parentNode?.replaceChild(newCloseButton, closeButton);
+      
+      // Добавляем новый обработчик закрытия
+      newCloseButton.addEventListener('click', () => {
+        startupModal.classList.remove('modal_active');
+      });
+    }
+    
+    // Удаляем существующие обработчики с кнопки "В корзину"
+    const addButton = startupModal.querySelector('.button');
+    if (addButton) {
+      const newAddButton = addButton.cloneNode(true);
+      addButton.parentNode?.replaceChild(newAddButton, addButton);
+      
+      // Добавляем новый прямой обработчик
+      newAddButton.addEventListener('click', () => {
+        // Добавляем товар в корзину
+        basketModel.basketProducts.push(startupCardData);
+        // Обновляем счетчик корзины
+        basket.renderHeaderBasketCounter(basketModel.getCounter());
+        // Закрываем модальное окно
+        startupModal.classList.remove('modal_active');
+      });
+    }
+  }
+}, 100);
+
 
 /********** Получаем данные с сервера **********/
 apiModel.getListProductCard()
@@ -178,4 +224,3 @@ apiModel.getListProductCard()
   })
   // .then(dataModel.setProductCards.bind(dataModel))
   .catch(error => console.log(error))
-
