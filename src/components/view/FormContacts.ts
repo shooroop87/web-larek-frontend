@@ -1,39 +1,45 @@
-import { Events, IEventEmitter } from '../../types';
-import { IFormContacts } from '../../types/view/FormContacts';
-import { Form } from './Form';
+import { IEvents } from "../base/events";
 
-export class FormContacts extends Form<IFormContacts> {
-	email: HTMLInputElement;
-	phone: HTMLInputElement;
+export interface IContacts {
+  formContacts: HTMLFormElement;
+  inputAll: HTMLInputElement[];
+  buttonSubmit: HTMLButtonElement;
+  formErrors: HTMLElement;
+  render(): HTMLElement;
+}
 
-	constructor(container: HTMLFormElement, events: IEventEmitter) {
-		super(container, events);
+export class Contacts implements IContacts {
+  formContacts: HTMLFormElement;
+  inputAll: HTMLInputElement[];
+  buttonSubmit: HTMLButtonElement;
+  formErrors: HTMLElement;
 
-		this.email = this.container.querySelector(
-			'input[name="email"]'
-		) as HTMLInputElement;
-		this.phone = this.container.querySelector(
-			'input[name="phone"]'
-		) as HTMLInputElement;
+  constructor(template: HTMLTemplateElement, protected events: IEvents) {
+    this.formContacts = template.content.querySelector('.form').cloneNode(true) as HTMLFormElement;
+    this.inputAll = Array.from(this.formContacts.querySelectorAll('.form__input'));
+    this.buttonSubmit = this.formContacts.querySelector('.button');
+    this.formErrors = this.formContacts.querySelector('.form__errors');
 
-		this.container.addEventListener('submit', (e) => {
-			e.preventDefault();
-			events.emit(Events.OrderSubmit);
-		});
-	}
+    this.inputAll.forEach(item => {
+      item.addEventListener('input', (event) => {
+        const target = event.target as HTMLInputElement;
+        const field = target.name;
+        const value = target.value;
+        this.events.emit(`contacts:changeInput`, { field, value });
+      })
+    })
 
-	set emailValue(value: string) {
-		this.email.value = value;
-	}
+    this.formContacts.addEventListener('submit', (event: Event) => {
+      event.preventDefault();
+      this.events.emit('success:open');
+    });
+  }
 
-	set phoneValue(value: string) {
-		this.phone.value = value;
-	}
+  set valid(value: boolean) {
+    this.buttonSubmit.disabled = !value;
+  }
 
-	inputChangeHandler(field: keyof IFormContacts, value: string) {
-		this.events.emit(`contacts.${String(field)}:change`, {
-			field,
-			value,
-		});
-	}
+  render() {
+    return this.formContacts
+  }
 }

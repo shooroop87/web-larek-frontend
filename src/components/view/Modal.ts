@@ -1,43 +1,57 @@
-import { IEventEmitter } from '../../types';
-import { IModalData } from '../../types/view/Modal';
-import { ensureElement } from '../../utils/utils';
-import { View } from '../base/View';
+import { IEvents } from "../base/events";
 
-export class Modal extends View<IModalData> {
-	closeButton: HTMLElement;
-	modalContent: HTMLElement;
+export interface IModal {
+  open(): void;
+  close(): void;
+  render(): HTMLElement
+}
 
-	constructor(
-		protected readonly container: HTMLElement,
-		protected events: IEventEmitter
-	) {
-		super(container);
+export class Modal implements IModal {
+  protected modalContainer: HTMLElement;
+  protected closeButton: HTMLButtonElement;
+  protected _content: HTMLElement;
+  protected _pageWrapper: HTMLElement;
+  
+  constructor(modalContainer: HTMLElement, protected events: IEvents) {
+    this.modalContainer = modalContainer;
+    this.closeButton = modalContainer.querySelector('.modal__close');
+    this._content = modalContainer.querySelector('.modal__content');
+    this._pageWrapper = document.querySelector('.page__wrapper');
 
-		this.closeButton = ensureElement('.modal__close');
-		this.modalContent = ensureElement('.modal__content');
+    this.closeButton.addEventListener('click', this.close.bind(this));
+    this.modalContainer.addEventListener('click', this.close.bind(this));
+    this.modalContainer.querySelector('.modal__container').addEventListener('click', event => event.stopPropagation());
+  }
 
-		[this.closeButton, this.container].forEach((element) => {
-			element.addEventListener('click', () => this.close());
-		});
-		this.modalContent.addEventListener('click', (e) => e.stopPropagation());
-	}
+  // принимает элемент разметки которая будет отображаться в "modal__content" модального окна
+  set content(value: HTMLElement) {
+    this._content.replaceChildren(value);
+  }
 
-	set content(data: HTMLElement) {
-		this.modalContent.replaceChildren(data);
-	}
+  // открытие модального окна
+  open() {
+    this.modalContainer.classList.add('modal_active');
+    this.events.emit('modal:open');
+  }
 
-	open(): void {
-		this.container.classList.add('modal_active');
-	}
+  // закрытие модального окна
+  close() {
+    this.modalContainer.classList.remove('modal_active');
+    this.content = null; // очистка контента в модальном окне
+    this.events.emit('modal:close');
+  }
 
-	close(): void {
-		this.container.classList.remove('modal_active');
-		this.content = null;
-	}
+  set locked(value: boolean) {
+    if (value) {
+      this._pageWrapper.classList.add('page__wrapper_locked');
+    } else {
+      this._pageWrapper.classList.remove('page__wrapper_locked');
+    }
+  }
 
-	render(data: IModalData): HTMLElement {
-		super.render(data);
-		this.open();
-		return this.container;
-	}
+  render(): HTMLElement {
+    this._content;
+    this.open();
+    return this.modalContainer
+  }
 }

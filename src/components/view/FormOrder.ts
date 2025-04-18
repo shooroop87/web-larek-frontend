@@ -1,62 +1,57 @@
-import { Events, IEventEmitter } from '../../types';
-import { IFormOrder, PaymentMethods } from '../../types/view/FormOrder';
-import { ensureElement } from '../../utils/utils';
-import { Form } from './Form';
+import { IEvents } from "../base/events";
 
-function isPaymentType(str: string): str is PaymentMethods {
-	return str === PaymentMethods.cash || str === PaymentMethods.card;
+export interface IOrder {
+  formOrder: HTMLFormElement;
+  buttonAll: HTMLButtonElement[];
+  paymentSelection: String;
+  formErrors: HTMLElement;
+  render(): HTMLElement;
 }
 
-export class FormOrder extends Form<IFormOrder> {
-	deliveryAddress: HTMLInputElement;
-	buttonsContainer: HTMLElement;
-	buttonCash: HTMLButtonElement;
-	buttonCard: HTMLButtonElement;
+export class Order implements IOrder {
+  formOrder: HTMLFormElement;
+  buttonAll: HTMLButtonElement[];
+  buttonSubmit: HTMLButtonElement;
+  formErrors: HTMLElement;
 
-	constructor(container: HTMLFormElement, events: IEventEmitter) {
-		super(container, events);
+  constructor(template: HTMLTemplateElement, protected events: IEvents) {
+    this.formOrder = template.content.querySelector('.form').cloneNode(true) as HTMLFormElement;
+    this.buttonAll = Array.from(this.formOrder.querySelectorAll('.button_alt'));
+    this.buttonSubmit = this.formOrder.querySelector('.order__button');
+    this.formErrors = this.formOrder.querySelector('.form__errors');
 
-		this.buttonsContainer = ensureElement('.order__buttons', this.container);
-		this.buttonCard = ensureElement('[name="card"]', this.container) as HTMLButtonElement;
-		this.buttonCash = ensureElement('[name="cash"]', this.container) as HTMLButtonElement;
-		this.deliveryAddress = ensureElement(
-			'.form__input',
-			this.container
-		) as HTMLInputElement;
+    this.buttonAll.forEach(item => {
+      item.addEventListener('click', () => {
+        this.paymentSelection = item.name;
+        events.emit('order:paymentSelection', item);
+      });
+    });
 
-		this.container.addEventListener('submit', (e) => {
-			e.preventDefault();
-			events.emit(Events.FormContacts);
-		});
+    this.formOrder.addEventListener('input', (event: Event) => {
+      const target = event.target as HTMLInputElement;
+      const field = target.name;
+      const value = target.value;
+      this.events.emit(`order:changeAddress`, { field, value });
+    });
 
-		this.buttonsContainer.addEventListener('click', (e) => {
-			const target = e.target as HTMLElement;
-			if (target.classList.contains('button_alt')) {
-				const button = target as HTMLButtonElement;
-				const type = isPaymentType(button.name) ? button.name : undefined;
-				this.events.emit(Events.OrderFormPaymentMethod, { type });
-			}
-		});
-	}
+    this.formOrder.addEventListener('submit', (event: Event) => {
+      event.preventDefault();
+      this.events.emit('contacts:open');
+    });
+  }
 
-	set deliveryAddressValue(value: string) {
-		this.deliveryAddress.value = value;
-	}
+  // устанавливаем обводку вокруг выбранного метода оплаты
+  set paymentSelection(paymentMethod: string) {
+    this.buttonAll.forEach(item => {
+      item.classList.toggle('button_alt-active', item.name === paymentMethod);
+    })
+  }
 
-	set paymentType(type: PaymentMethods) {
-		[this.buttonCard, this.buttonCash].forEach((button) => {
-			if (button.name === type) {
-				this.toggleClass(button, 'button_alt-active', true);
-			} else {
-				this.toggleClass(button, 'button_alt-active', false);
-			} 
-		});
-	}
+  set valid(value: boolean) {
+    this.buttonSubmit.disabled = !value;
+  }
 
-	inputChangeHandler(field: keyof IFormOrder, value: string) {
-		this.events.emit(`order.${String(field)}:change`, {
-			field,
-			value,
-		});
-	}
+  render() {
+    return this.formOrder
+  }
 }

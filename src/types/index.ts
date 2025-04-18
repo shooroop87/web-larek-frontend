@@ -1,54 +1,42 @@
-import { PaymentMethods } from "./view/FormOrder";
-
-type Categories =
-	| 'софт-скил'
-	| 'другое'
-	| 'дополнительное'
-	| 'кнопка'
-	| 'хард-скил';
-
-export type IProduct = {
-	title: string;
-	image: string;
-	category: Categories;
-	description: string;
-	price: number;
-	id: string;
-};
-
-export interface IEventEmitter {
-	emit<T extends object>(event: string, data?: T): void;
-}
-
-export type EventDataId = {
-	id: string;
-};
-
-export enum Events {
-	OrderSubmit = 'order:submit',
-	OrderError = 'order:error',
-	OrderFormPaymentMethod = 'order:formPaymentMethod',
-	OrderModelPaymentMethod = 'order:modelPaymentMethod',
-	OrderValid = 'order:valid',
-	ContactsValid = 'contacts:valid',
-	ContactsError = 'contacts:error',
-	CartOpen = 'cart:open',
-	CartChanged = 'cart:changed',
-	FormOrder = 'form:order',
-	FormContacts = 'form:contacts',
-	ModalOpen = 'modal:open',
-	ModalClose = 'modal:close',
-	ProductListSet = 'productList:set',
-	ProductClick = 'product:click',
-	ProductAdd = 'product:add',
-	ProductDelete = 'product:delete',
-}
-
-export type OrderData = {
-	email: string;
-	phone: string;
-	address: string;
-	payment: PaymentMethods;
-	items: string[];
-	total: number;
-};
+export interface IProductItem {
+    id: string;
+    description: string;
+    image: string;
+    title: string;
+    category: string;
+    price: number | null;
+  }
+  
+  export interface IActions {
+    onClick: (event: MouseEvent) => void;
+  }
+  
+  // интерфейс формы заказа
+  export interface IOrderForm {
+  payment?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  total?: string | number;
+  }
+  
+  export interface IOrder extends IOrderForm {
+    items: string[];
+  }
+  
+  export interface IOrderLot{
+    payment: string;
+    email: string;
+    phone: string;
+    address: string;
+    total: number;
+    items: string[];
+  }
+  
+  export interface IOrderResult {
+    id: string;
+    total: number;
+  }
+  
+  // тип ошибки формы
+  export type FormErrors = Partial<Record<keyof IOrder, string>>;
