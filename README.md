@@ -8,9 +8,26 @@ Web-ларёк — это учебный интернет-магазин с то
 ## Архитектура проекта
 
 Проект реализован по паттерну **MVP (Model-View-Presenter)**:
-- `Model` — отвечает за хранение и обработку данных;
-- `View` — отображает интерфейс;
-- `Presenter` — посредник между Model и View, управляет бизнес-логикой.
+
+* **Model (Модель)** — отвечает за хранение, обработку и валидацию данных:
+  * `ProductCollectionModel` — управляет коллекцией товаров
+  * `ShoppingCartModel` — отвечает за работу с корзиной покупок
+  * `CheckoutModel` — управляет данными заказа и их валидацией
+
+* **View (Представление)** — отображает интерфейс и реагирует на действия пользователя:
+  * `ProductItemView` — отвечает за отображение отдельного товара
+  * `ProductDetailsView` — показывает подробную информацию о товаре
+  * `ShoppingCartView` — отображает корзину
+  * `CheckoutPaymentView` и `CheckoutContactsView` — формы оформления заказа
+  * `ModalView` — управляет модальными окнами
+
+* **Presenter (Презентер)** — выполняет роль посредника между Model и View, управляет бизнес-логикой приложения и реакцией на события:
+  * `CatalogPresenter` — управление каталогом товаров и просмотром деталей
+  * `ShoppingCartPresenter` — управление корзиной покупок
+  * `CheckoutPresenter` — управление процессом оформления заказа
+
+* **Services (Сервисы)** — дополнительный слой для работы с внешними API:
+  * `WebLarekApi` — клиент для взаимодействия с серверным API
 
 Компоненты взаимодействуют через **EventEmitter** (брокер событий).
 
@@ -22,12 +39,38 @@ Web-ларёк — это учебный интернет-магазин с то
 - Webpack
 
 ## Структура проекта
-- `src/` — исходные файлы проекта
-- `src/components/` — UI-компоненты и логика
-- `src/components/base/` — базовые абстракции и утилиты
-- `src/types/` — типы и интерфейсы
-- `src/pages/index.html` — разметка приложения
-- `src/index.ts` — корневой файл инициализации
+src/ — исходные файлы проекта
+├── components/ — UI-компоненты и логика
+│   ├── base/ — базовые абстракции и утилиты
+│   │   ├── api.ts — базовый класс для работы с API
+│   │   ├── events.ts — брокер событий (EventBus)
+│   ├── Model/ — модели данных
+│   │   ├── ProductCollectionModel.ts — модель каталога товаров
+│   │   ├── ShoppingCartModel.ts — модель корзины покупок
+│   │   ├── CheckoutModel.ts — модель оформления заказа
+│   ├── Presenters/ — презентеры
+│   │   ├── CatalogPresenter.ts — презентер каталога товаров
+│   │   ├── ShoppingCartPresenter.ts — презентер корзины покупок
+│   │   ├── CheckoutPresenter.ts — презентер оформления заказа
+│   ├── Services/ — сервисы
+│   │   ├── WebLarekApi.ts — клиент для взаимодействия с API
+│   ├── View/ — представления
+│   │   ├── ProductItemView.ts — представление карточки товара
+│   │   ├── ProductDetailsView.ts — представление детальной информации о товаре
+│   │   ├── ShoppingCartView.ts — представление корзины
+│   │   ├── CartItemView.ts — представление товара в корзине
+│   │   ├── CheckoutPaymentView.ts — представление формы оплаты
+│   │   ├── CheckoutContactsView.ts — представление формы контактов
+│   │   ├── OrderSuccessView.ts — представление успешного оформления заказа
+│   │   ├── ModalView.ts — представление модального окна
+├── types/ — типы и интерфейсы
+│   ├── index.ts — основные типы данных
+├── utils/ — утилиты
+│   ├── constants.ts — константы приложения
+│   ├── utils.ts — вспомогательные функции
+├── pages/index.html — разметка приложения
+├── scss/ — стили
+├── index.ts — корневой файл инициализации
 
 ## Инструкция по сборке и запуску проекта
 
@@ -49,8 +92,9 @@ yarn build
 
 ## Типы данных
 
-### Данные от API
-```ts
+### Продукты
+```
+// Интерфейс для товара
 interface IProduct {
   id: string;
   title: string;
@@ -59,24 +103,36 @@ interface IProduct {
   category: string;
   image: string;
 }
-```
 
-### Данные заказа
-```ts
-interface IOrder {
-  payment: string;
-  address: string;
-  email: string;
-  phone: string;
-  items: string[];
-}
-```
-
-### Корзина
-```ts
+// Интерфейс для товара в корзине
 interface ICartItem {
   productId: string;
   quantity: number;
+}
+
+// Базовый интерфейс для формы оформления заказа
+interface ICheckoutForm {
+  payment?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  total?: string | number;
+}
+
+// Данные для отправки заказа
+interface ICheckoutSubmission {
+  payment: string;
+  email: string;
+  phone: string;
+  address: string;
+  total: number;
+  items: string[];
+}
+
+// Результат оформления заказа
+interface ICheckoutResult {
+  id: string;
+  total: number;
 }
 ```
 
