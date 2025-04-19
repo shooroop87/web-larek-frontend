@@ -1,100 +1,137 @@
 # Проектная работа "Веб-ларек"
 
 ## Описание проекта
-Web-ларёк — это учебный интернет-магазин с товарами для веб-разработчиков. 
-Пользователь может просматривать товары, добавлять их в корзину и оформлять заказ.
-Проект реализован на основе паттерна **MVP (Model-View-Presenter)** с акцентом на слабую связанность и масштабируемость.
 
-## Архитектура проекта
+**Web-ларёк** — это учебный интернет-магазин, разработанный на TypeScript, предназначенный для демонстрации архитектурных подходов и разделения ответственности между компонентами. Пользователь может просматривать список товаров, открывать подробную информацию, добавлять товары в корзину и оформлять заказ. Взаимодействие с сервером реализовано через REST API.
 
-Проект реализован по паттерну **MVP (Model-View-Presenter)**:
+Проект построен по архитектурному паттерну **MVP (Model-View-Presenter)**. Такой подход обеспечивает масштабируемость, переиспользуемость компонентов и слабую связанность между слоями приложения.
 
-* **Model (Модель)** — отвечает за хранение, обработку и валидацию данных:
-  * `ProductCollectionModel` — управляет коллекцией товаров
-  * `ShoppingCartModel` — отвечает за работу с корзиной покупок
-  * `CheckoutModel` — управляет данными заказа и их валидацией
+---
 
-* **View (Представление)** — отображает интерфейс и реагирует на действия пользователя:
-  * `ProductItemView` — отвечает за отображение отдельного товара
-  * `ProductDetailsView` — показывает подробную информацию о товаре
-  * `ShoppingCartView` — отображает корзину
-  * `CheckoutPaymentView` и `CheckoutContactsView` — формы оформления заказа
-  * `ModalView` — управляет модальными окнами
+## Инструкция по запуску проекта
 
-* **Presenter (Презентер)** — выполняет роль посредника между Model и View, управляет бизнес-логикой приложения и реакцией на события:
-  * `CatalogPresenter` — управление каталогом товаров и просмотром деталей
-  * `ShoppingCartPresenter` — управление корзиной покупок
-  * `CheckoutPresenter` — управление процессом оформления заказа
-
-* **Services (Сервисы)** — дополнительный слой для работы с внешними API:
-  * `WebLarekApi` — клиент для взаимодействия с серверным API
-
-Компоненты взаимодействуют через **EventEmitter** (брокер событий).
-
-## Используемый стек:
-
-- HTML
-- SCSS
-- TypeScript
-- Webpack
-
-## Структура проекта
-src/ — исходные файлы проекта
-├── components/ — UI-компоненты и логика
-│   ├── base/ — базовые абстракции и утилиты
-│   │   ├── api.ts — базовый класс для работы с API
-│   │   ├── events.ts — брокер событий (EventBus)
-│   ├── Model/ — модели данных
-│   │   ├── ProductCollectionModel.ts — модель каталога товаров
-│   │   ├── ShoppingCartModel.ts — модель корзины покупок
-│   │   ├── CheckoutModel.ts — модель оформления заказа
-│   ├── Presenters/ — презентеры
-│   │   ├── CatalogPresenter.ts — презентер каталога товаров
-│   │   ├── ShoppingCartPresenter.ts — презентер корзины покупок
-│   │   ├── CheckoutPresenter.ts — презентер оформления заказа
-│   ├── Services/ — сервисы
-│   │   ├── WebLarekApi.ts — клиент для взаимодействия с API
-│   ├── View/ — представления
-│   │   ├── ProductItemView.ts — представление карточки товара
-│   │   ├── ProductDetailsView.ts — представление детальной информации о товаре
-│   │   ├── ShoppingCartView.ts — представление корзины
-│   │   ├── CartItemView.ts — представление товара в корзине
-│   │   ├── CheckoutPaymentView.ts — представление формы оплаты
-│   │   ├── CheckoutContactsView.ts — представление формы контактов
-│   │   ├── OrderSuccessView.ts — представление успешного оформления заказа
-│   │   ├── ModalView.ts — представление модального окна
-├── types/ — типы и интерфейсы
-│   ├── index.ts — основные типы данных
-├── utils/ — утилиты
-│   ├── constants.ts — константы приложения
-│   ├── utils.ts — вспомогательные функции
-├── pages/index.html — разметка приложения
-├── scss/ — стили
-├── index.ts — корневой файл инициализации
-
-## Инструкция по сборке и запуску проекта
+### Установка зависимостей
 
 ```bash
 npm install
-npm run start
 # или
 yarn
+```
+
+### Запуск проекта в режиме разработки
+
+```bash
+npm run start
+# или
 yarn start
 ```
 
-## Сборка
+### Сборка проекта
+
 ```bash
 npm run build
 # или
 yarn build
 ```
 
+---
 
-## Типы данных
+## Архитектура проекта
 
-### Продукты
+Проект реализован по паттерну **MVP (Model-View-Presenter)**, где каждый слой имеет чётко определённую зону ответственности.
+
+### Model (Модель)
+
+Модели инкапсулируют бизнес-логику и хранят данные:
+
+- **ProductCollectionModel** — управляет списком товаров и выбранным товаром.
+- **ShoppingCartModel** — хранит добавленные в корзину товары, предоставляет методы управления.
+- **CheckoutModel** — отвечает за сбор, валидацию и хранение данных заказа.
+
+### View (Представление)
+
+Компоненты View отвечают за визуальное отображение интерфейса и реагируют на действия пользователя:
+
+- **ProductItemView** — базовая карточка товара.
+- **ProductDetailsView** — карточка товара с подробным описанием.
+- **ShoppingCartView** — отображение корзины покупок.
+- **CartItemView** — отображение одного товара в корзине.
+- **CheckoutPaymentView** — форма выбора оплаты.
+- **CheckoutContactsView** — форма ввода контактных данных.
+- **OrderSuccessView** — сообщение об успешном заказе.
+- **ModalView** — универсальное модальное окно.
+
+### Presenter (Презентер)
+
+Презентеры управляют связью между Model и View:
+
+- **CatalogPresenter** — управляет каталогом и взаимодействием с карточками товаров.
+- **ShoppingCartPresenter** — управляет корзиной, обрабатывает события добавления и удаления товаров.
+- **CheckoutPresenter** — управляет этапами оформления заказа и отправкой данных на сервер.
+
+### Сервисы
+
+- **WebLarekApi** — сервис для работы с API: получение списка товаров и отправка заказа.
+- **Api** — базовый класс API-клиента.
+
+---
+
+## Взаимодействие между компонентами
+
+Коммуникация между слоями осуществляется через собственный брокер событий **EventEmitter**. Все компоненты подписываются на события и реагируют на них независимо друг от друга. Это позволяет легко расширять функциональность без изменения текущего кода.
+
+Примеры взаимодействий:
+
+- Выбор товара → `ProductDetailsView` открывается через `CatalogPresenter`, отображая данные из `ProductCollectionModel`.
+- Нажатие "Купить" → `ShoppingCartPresenter` добавляет товар из модели в корзину и обновляет `ShoppingCartView`.
+- Отправка формы → `CheckoutPresenter` получает данные из модели и передаёт их в `WebLarekApi`.
+
+---
+
+## Структура проекта
+
 ```
-// Интерфейс для товара
+src/
+├── components/
+│   ├── base/                # Базовые классы и инфраструктура
+│   │   ├── api.ts           # Базовый API-клиент
+│   │   ├── events.ts        # EventEmitter
+│   ├── Model/               # Модели данных
+│   │   ├── ProductCollectionModel.ts
+│   │   ├── ShoppingCartModel.ts
+│   │   ├── CheckoutModel.ts
+│   ├── Presenters/          # Презентеры
+│   │   ├── CatalogPresenter.ts
+│   │   ├── ShoppingCartPresenter.ts
+│   │   ├── CheckoutPresenter.ts
+│   ├── Services/            # Работа с API
+│   │   ├── WebLarekApi.ts
+│   ├── View/                # Компоненты представления
+│   │   ├── ProductItemView.ts
+│   │   ├── ProductDetailsView.ts
+│   │   ├── ShoppingCartView.ts
+│   │   ├── CartItemView.ts
+│   │   ├── CheckoutPaymentView.ts
+│   │   ├── CheckoutContactsView.ts
+│   │   ├── OrderSuccessView.ts
+│   │   ├── ModalView.ts
+├── types/                   # Типы и интерфейсы
+│   ├── index.ts
+├── utils/                   # Утилиты и константы
+│   ├── constants.ts
+│   ├── utils.ts
+├── pages/
+│   ├── index.html           # Разметка приложения
+├── scss/                    # Стили
+├── index.ts                 # Инициализация приложения
+```
+
+---
+
+## Описание типов данных
+
+```ts
+// Интерфейс товара
 interface IProduct {
   id: string;
   title: string;
@@ -104,13 +141,13 @@ interface IProduct {
   image: string;
 }
 
-// Интерфейс для товара в корзине
+// Элемент в корзине
 interface ICartItem {
   productId: string;
   quantity: number;
 }
 
-// Базовый интерфейс для формы оформления заказа
+// Форма оформления заказа (пошаговая)
 interface ICheckoutForm {
   payment?: string;
   address?: string;
@@ -119,7 +156,7 @@ interface ICheckoutForm {
   total?: string | number;
 }
 
-// Данные для отправки заказа
+// Полные данные заказа
 interface ICheckoutSubmission {
   payment: string;
   email: string;
@@ -129,188 +166,60 @@ interface ICheckoutSubmission {
   items: string[];
 }
 
-// Результат оформления заказа
+// Ответ от сервера после оформления
 interface ICheckoutResult {
   id: string;
   total: number;
 }
 ```
 
-## Базовые классы (components/base/)
+---
 
-### Component<T>
-Абстрактный базовый класс для компонентов отображения.
+## Программный интерфейс компонентов
 
-Свойства:
-- `protected readonly container: HTMLElement`
+### View-компоненты
 
-Конструктор:
+Каждый класс View реализует метод `render()` и работает только со своей частью DOM. Все используемые элементы кэшируются в конструкторе, повторный поиск исключён. Пользовательские действия передаются через события.
+
+Примеры методов:
+
 ```ts
-protected constructor(container: HTMLElement)
+render(): HTMLElement         // отрисовывает интерфейс
+set valid(value: boolean)    // изменяет доступность кнопки
+set content(value: HTMLElement) // вставка контента в модальное окно
 ```
 
+### EventEmitter
+
+Собственная реализация брокера событий для организации слабосвязанных компонентов.
 
 Методы:
+
 ```ts
-toggleClass(element: HTMLElement, className: string, force?: boolean): void
-setText(element: HTMLElement, value: unknown): void
-setDisabled(element: HTMLElement, state: boolean): void
-setHidden(element: HTMLElement): void
-setVisible(element: HTMLElement): void
-setImage(element: HTMLImageElement, src: string, alt?: string): void
-render(data?: Partial<T>): HTMLElement
-```
-
-### Model<T> (опционально)
-Базовый класс модели данных.
-
-Свойства:
-- `protected data: T`
-
-Конструктор:
-```ts
-constructor(initialData: T)
-```
-
-Методы:
-```ts
-getData(): T
-setData(data: T): void
-```
-
-### EventEmitter implements IEvents
-
-Служит брокером событий между компонентами.
-
-Свойства:
-- `_events: Map<EventName, Set<Subscriber>>`
-
-Методы:
-```ts
-on<T extends object>(event: EventName, callback: (data: T) => void): void
-off(event: EventName, callback: Subscriber): void
-emit<T extends object>(event: string, data?: T): void
-onAll(callback: (event: EmitterEvent) => void): void
-offAll(): void
-trigger<T extends object>(event: string, context?: Partial<T>): (data: T) => void
+on(event: string, callback: Function): void
+off(event: string, callback: Function): void
+emit(event: string, payload?: any): void
 ```
 
 ---
 
-## Модель (models/)
+## Соответствие кода и документации
 
-### CatalogModel
-Хранит список товаров и ID выбранного товара.
-
-Свойства:
-- `products: IProduct[]`
-- `selectedProductId: string | null`
-
-Методы:
-```ts
-setProducts(products: IProduct[]): void
-getProducts(): IProduct[]
-selectProduct(id: string): void
-getSelected(): IProduct | null
-```
-
-### CartModel
-Управляет корзиной.
-
-Свойства:
-- `items: Map<string, ICartItem>`
-
-Методы:
-```ts
-addItem(product: IProduct): void
-removeItem(productId: string): void
-hasItem(productId: string): boolean
-getItems(): ICartItem[]
-clear(): void
-getTotalPrice(): number
-```
-
-### OrderModel
-Собирает данные заказа и валидирует шаги.
-
-Свойства:
-- `payment: string | null`
-- `address: string | null`
-- `email: string | null`
-- `phone: string | null`
-- `items: string[]`
-
-Методы:
-```ts
-isValidStepOne(): boolean
-isValidStepTwo(): boolean
-submit(): IOrder
-```
+- Архитектура следует принципам **единственной ответственности**: каждый класс занимается только своей задачей.
+- Все взаимодействия между слоями происходят через события или внедрение зависимостей.
+- Все типы описаны и типизированы. Тип `any` не используется.
+- Компоненты не делают прямые запросы к API — этим занимаются сервисы.
+- Повторяющиеся части кода вынесены в утилиты.
+- Интерфейсы строго соответствуют передаваемым структурам.
 
 ---
 
-## View (components/views/)
+## Применённые паттерны
 
-Каждый класс реализует `Component<T>` и отвечает за определённую часть интерфейса.
-
-- `ProductCardView` — карточка товара
-- `CartView` — корзина
-- `OrderFormView` — оформления заказа
-- `ModalView` — модальное окно
-
----
-
-## Presenter (components/presenters/)
-
-### ProductPresenter
-Управляет карточками товаров и открытием модалки.
-
-### CartPresenter
-Управляет корзиной, обновляет представление и удаляет товары.
-
-### OrderPresenter
-Управляет шагами оформления заказа и отправкой данных.
+- **MVP (Model-View-Presenter)** — основа архитектуры.
+- **Observer** — через EventEmitter.
+- **Dependency Injection** — передача зависимостей через конструкторы.
+- **Single Responsibility Principle (SRP)** — соблюдён на уровне всех классов.
+- **Separation of Concerns** — каждый слой (Model, View, Presenter) изолирован и легко заменяем.
 
 ---
-
-## События приложения
-
-### События View
-- `product:click`
-- `modal:close`
-- `cart:remove`
-- `order:next`
-
-### События Model
-- `product:add`
-- `order:start`
-- `order:submit`
-
----
-
-## Сервисы
-
-### WebLarekApi
-
-Сервисный клиент, использующий базовый класс `Api`.
-
-Методы:
-```ts
-getProducts(): Promise<IProduct[]>
-getProduct(id: string): Promise<IProduct>
-sendOrder(order: IOrder): Promise<{ success: boolean }>
-```
-
-### Утилиты
-constants.ts
-Содержит списки категорий, статусы, названия шагов, иконки и т.д.
-
-utils.ts
-- createElement(html: string): HTMLElement
-- formatPrice(price: number): string
-- validateEmail(email: string): boolean
-- validatePhone(phone: string): boolean
-
-## Основной инициализатор (index.ts)
-
-Создаёт экземпляры моделей, вью, презентеров и связывает их через EventEmitter, а также запускает приложение.
