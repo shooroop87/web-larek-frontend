@@ -1,5 +1,6 @@
 import { IEvents } from "../base/events";
 
+// Интерфейс для представления успешного оформления заказа
 export interface ISuccess {
   success: HTMLElement;
   description: HTMLElement;
@@ -7,6 +8,7 @@ export interface ISuccess {
   render(total: number): HTMLElement;
 }
 
+// Класс для представления успешного оформления заказа
 export class OrderSuccessView {
   success: HTMLElement;
   description: HTMLElement;
@@ -17,11 +19,15 @@ export class OrderSuccessView {
     this.description = this.success.querySelector('.order-success__description');
     this.button = this.success.querySelector('.order-success__close');
 
-    this.button.addEventListener('click', () => { events.emit('success:close') });
+    // Обработка закрытия
+    this.button.addEventListener('click', () => { 
+      events.emit('success:close');
+    });
   }
 
+  // Рендерю итоговую сумму
   render(total: number) {
     this.description.textContent = String(`Списано ${total} синапсов`);
-    return this.success
+    return this.success;
   }
 }

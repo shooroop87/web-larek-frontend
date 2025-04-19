@@ -1,3 +1,4 @@
+// Интерфейс, описывающий форму оформления заказа
 export interface ICheckoutForm {
     payment?: string;
     address?: string;
@@ -6,10 +7,12 @@ export interface ICheckoutForm {
     total?: string | number;
 }
 
+// Интерфейс, описывающий данные заказа
 export interface ICheckoutData extends ICheckoutForm {
     items: string[];
 }
 
+// Интерфейс, описывающий отправленные данные заказа
 export interface ICheckoutSubmission {
     payment: string;
     email: string;
@@ -18,7 +21,8 @@ export interface ICheckoutSubmission {
     total: number;
     items: string[];
 }
-  
+
+// Интерфейс, описывающий успешное оформления заказа
 export interface ICheckoutResult {
     id: string;
     total: number;

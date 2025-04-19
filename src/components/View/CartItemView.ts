@@ -1,6 +1,7 @@
 import { IEventHandlers, IProduct } from "../../types";
 import { IEvents } from "../base/events";
 
+// Интерфейс для представления отдельного элемента корзины
 export interface ICartItemView {
   cartItem: HTMLElement;
   index: HTMLElement;
@@ -10,6 +11,7 @@ export interface ICartItemView {
   render(data: IProduct, item: number): HTMLElement;
 }
 
+// Класс для представления отдельного элемента корзины
 export class CartItemView implements ICartItemView {
   cartItem: HTMLElement;
   index: HTMLElement;
@@ -31,11 +33,12 @@ export class CartItemView implements ICartItemView {
 
   protected setPrice(value: number | null) {
     if (value === null) {
-      return 'Бесценно'
+      return 'Бесценно';
     }
-    return String(value) + ' синапсов'
+    return String(value) + ' синапсов';
   }
 
+  // Отображение корзины
   render(data: IProduct, item: number) {
     this.index.textContent = String(item);
     this.title.textContent = data.title;

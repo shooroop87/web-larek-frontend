@@ -1,5 +1,6 @@
 import { IEvents } from "../base/events";
 
+// Интерфейс для представления модального окна
 export interface IModalView {
   open(): void;
   close(): void;
@@ -8,41 +9,45 @@ export interface IModalView {
   locked: boolean;
 }
 
+// Класс для представления модального окна
 export class ModalView implements IModalView {
   protected modalContainer: HTMLElement;
   protected closeButton: HTMLButtonElement;
   protected _content: HTMLElement;
   protected _pageWrapper: HTMLElement;
-  
+
   constructor(modalContainer: HTMLElement, protected events: IEvents) {
     this.modalContainer = modalContainer;
     this.closeButton = modalContainer.querySelector('.modal__close');
     this._content = modalContainer.querySelector('.modal__content');
     this._pageWrapper = document.querySelector('.page__wrapper');
 
+    // Закрытие по кнопке
     this.closeButton.addEventListener('click', this.close.bind(this));
+
+    // Закрытие по клику вне модального окна
     this.modalContainer.addEventListener('click', this.close.bind(this));
+
     this.modalContainer.querySelector('.modal__container').addEventListener('click', event => event.stopPropagation());
-    
-    // Обработчик события для установки содержимого модального окна
+
     this.events.on('modal:content', (content: HTMLElement) => {
       this.content = content;
       this.render();
     });
   }
 
-  // принимает элемент разметки которая будет отображаться в "modal__content" модального окна
+  // Сеттер контента модального окна
   set content(value: HTMLElement) {
     this._content.replaceChildren(value);
   }
 
-  // открытие модального окна
+  // Открытие модального окна
   open(): void {
     this.modalContainer.classList.add('modal_active');
     this.events.emit('modal:open');
   }
 
-  // закрытие модального окна
+  // Закрытие модального окна
   close() {
     const activeModal = document.querySelector('.modal.modal_active') as HTMLElement;
     if (activeModal) {
@@ -51,6 +56,7 @@ export class ModalView implements IModalView {
     }
   }
 
+  // Блокировка прокрутки фона при открытом модальном окне
   set locked(value: boolean) {
     if (value) {
       this._pageWrapper.classList.add('page__wrapper_locked');
@@ -59,6 +65,7 @@ export class ModalView implements IModalView {
     }
   }
 
+  // Рендерю модальное окно
   render(): HTMLElement {
     this.open();
     return this.modalContainer;
