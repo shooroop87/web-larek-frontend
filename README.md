@@ -2,9 +2,9 @@
 
 ## Описание проекта
 
-**Web-ларёк** — это учебный интернет-магазин с товарами для веб-разработчиков. Пользователь может просматривать каталог, открывать карточки товаров, добавлять их в корзину и оформлять заказ. Данные приходят с внешнего API.
+**Web-ларёк** — это учебный интернет-магазин с товарами для веб-разработчиков. Пользователь может просматривать каталог, открывать карточки товаров, добавлять их в корзину и оформлять заказ. Данные приходят с внешнего API. 
 
-Проект реализован на **TypeScript** и построен на архитектурном паттерне **MVP (Model-View-Presenter)**. Компоненты приложения слабо связаны между собой и взаимодействуют через событийную систему `EventEmitter`, что обеспечивает масштабируемость и поддержку в долгосрочной перспективе.
+Проект построен на TypeScript с использованием архитектурного паттерна **MVP (Model-View-Presenter)**. Компоненты слабо связаны между собой и взаимодействуют через событийную систему `EventEmitter`, что обеспечивает масштабируемость и поддержку в долгосрочной перспективе.
 
 ---
 
@@ -18,7 +18,7 @@ npm install
 yarn
 ```
 
-### Запуск проекта
+### Запуск проекта в режиме разработки
 
 ```bash
 npm run start
@@ -38,41 +38,38 @@ yarn build
 
 ## Архитектура проекта
 
-Проект реализован по паттерну **MVP (Model-View-Presenter)**, где каждый слой имеет чётко определённую зону ответственности.
+Проект построен по паттерну **MVP (Model-View-Presenter)**:
 
 ### Model (Модель)
+Модели управляют состоянием данных и их валидацией:
 
-Модели инкапсулируют бизнес-логику и хранят данные:
-
-- **ProductCollectionModel** — управляет списком товаров и выбранным товаром.
-- **ShoppingCartModel** — хранит добавленные в корзину товары, предоставляет методы управления.
-- **CheckoutModel** — отвечает за сбор, валидацию и хранение данных заказа.
+- `ProductCollectionModel` — список товаров и текущий выбранный товар.
+- `ShoppingCartModel` — товары в корзине, итоговая сумма и очистка.
+- `CheckoutModel` — данные заказа, пошаговая валидация и сбор информации.
 
 ### View (Представление)
+Компоненты интерфейса, реагирующие на действия пользователя:
 
-Компоненты View отвечают за визуальное отображение интерфейса и реагируют на действия пользователя:
-
-- **ProductItemView** — базовая карточка товара.
-- **ProductDetailsView** — карточка товара с подробным описанием.
-- **ShoppingCartView** — отображение корзины покупок.
-- **CartItemView** — отображение одного товара в корзине.
-- **CheckoutPaymentView** — форма выбора оплаты.
-- **CheckoutContactsView** — форма ввода контактных данных.
-- **OrderSuccessView** — сообщение об успешном заказе.
-- **ModalView** — универсальное модальное окно.
+- `ProductItemView` — карточка товара.
+- `ProductDetailsView` — карточка с подробностями и кнопкой покупки.
+- `ShoppingCartView` — отображение модального окна корзины.
+- `CartItemView` — отображение одного товара в списке корзины.
+- `CheckoutPaymentView` — форма выбора оплаты.
+- `CheckoutContactsView` — форма ввода контактной информации.
+- `OrderSuccessView` — окно успешного оформления.
+- `ModalView` — универсальное модальное окно.
 
 ### Presenter (Презентер)
+Промежуточное звено между Model и View:
 
-Презентеры управляют связью между Model и View:
-
-- **CatalogPresenter** — управляет каталогом и взаимодействием с карточками товаров.
-- **ShoppingCartPresenter** — управляет корзиной, обрабатывает события добавления и удаления товаров.
-- **CheckoutPresenter** — управляет этапами оформления заказа и отправкой данных на сервер.
+- `CatalogPresenter` — отображение карточек товаров, открытие подробностей.
+- `ShoppingCartPresenter` — управление корзиной.
+- `CheckoutPresenter` — оформление заказа, валидация и отправка.
 
 ### Сервисы
 
-- **WebLarekApi** — сервис для работы с API: получение списка товаров и отправка заказа.
-- **Api** — базовый класс API-клиента.
+- `WebLarekApi` — взаимодействие с API: получение списка товаров и отправка заказа.
+- `Api` — базовый HTTP-клиент.
 
 ---
 
@@ -81,161 +78,185 @@ yarn build
 ```
 src/
 ├── components/
-│   ├── base/                # Базовые классы и утилиты
-│   │   ├── api.ts
-│   │   ├── events.ts
-│   ├── Model/
-│   ├── View/
-│   ├── Presenters/
-│   ├── Services/
-├── types/
-├── utils/
-├── pages/
-├── scss/
-├── index.ts
+│   ├── base/                # Базовые классы
+│   ├── Model/               # Модели данных
+│   ├── View/                # Интерфейсные компоненты
+│   ├── Presenters/          # Бизнес-логика
+│   ├── Services/            # API-клиенты
+├── types/                   # Типы и интерфейсы
+├── utils/                   # Утилиты и константы
+├── pages/                   # HTML
+├── scss/                    # Стили
+├── index.ts                 # Инициализация
 ```
 
 ---
 
-## Модели (Model)
+## View-компоненты
 
-### ProductCollectionModel
+### `ProductItemView`
 
-Управляет списком товаров и выбранным товаром.
+**Назначение**: отображение карточки товара.
 
-#### Конструктор:
-
-```ts
-constructor(events: IEvents)
-```
-
-#### Методы:
-
-- `set products(data: IProduct[])` — обновляет список товаров.
-- `get products()` — возвращает текущий список.
-- `setPreview(item: IProduct)` — устанавливает выбранный товар и генерирует событие `modalCard:open`.
+**Методы**:
+- `render(data: IProduct): HTMLElement` — отрисовка товара.
+- `set cardCategory(value: string): void` — установка категории с CSS-классом.
+- `setPrice(value: number | null): string` — форматирование цены.
 
 ---
 
-### ShoppingCartModel
+### `ProductDetailsView`
 
-Управляет корзиной: добавление, удаление, итоговая сумма.
+**Наследуется от**: `ProductItemView`.
 
-#### Методы:
+**Дополнительно**:
+- `addToCartButton: HTMLElement` — кнопка "Купить".
+- `description: HTMLElement` — описание товара.
 
-- `addProduct(product: IProduct)`
-- `removeProduct(product: IProduct)`
-- `getItemCount()`
-- `getTotal()`
-- `clear()`
-
----
-
-### CheckoutModel
-
-Собирает данные для оформления заказа и валидирует их.
-
-#### Методы:
-
-- `setAddress(field: string, value: string)`
-- `validatePaymentStep()`
-- `setContactData(field: string, value: string)`
-- `validateContactsStep()`
-- `getOrderData()`
+**Методы**:
+- `render(data: IProduct): HTMLElement`
+- `isForSale(data: IProduct): string` — определяет доступность товара.
 
 ---
 
-## Представления (View)
+### `ShoppingCartView`
 
-Каждое представление реализует метод `render()` и работает со своей частью DOM.
+**Назначение**: отображение модального окна корзины.
 
-### ProductItemView
-
-- `render(data: IProduct)`
-- `set cardCategory(value: string)`
-
-### ProductDetailsView
-
-- `render(data: IProduct)`
-- `isForSale(data: IProduct)`
-
-### ShoppingCartView
-
+**Методы**:
 - `set items(items: HTMLElement[])`
 - `renderHeaderCartCounter(value: number)`
 - `renderTotal(total: number)`
-- `render()`
+- `render(): HTMLElement`
 
-### CartItemView
+**Элементы**:
+- `cartList` — список товаров.
+- `checkoutButton` — кнопка оформления.
+- `headerCartCounter` — счетчик в шапке.
 
-- `render(data: IProduct, index: number)`
+---
 
-### CheckoutPaymentView
+### `CartItemView`
 
+**Назначение**: отображение одного товара в корзине.
+
+**Методы**:
+- `render(data: IProduct, index: number): HTMLElement`
+
+**Элементы**:
+- `title`, `price`, `removeButton`, `index`
+
+---
+
+### `CheckoutPaymentView`
+
+**Назначение**: форма выбора способа оплаты.
+
+**Методы**:
 - `set paymentSelection(value: string)`
 - `set valid(value: boolean)`
 - `render()`
 
-### CheckoutContactsView
+**Особенности**:
+- Кнопки оплаты переключаются по клику.
 
+---
+
+### `CheckoutContactsView`
+
+**Назначение**: форма ввода email и телефона.
+
+**Методы**:
 - `set valid(value: boolean)`
 - `render()`
 
-### OrderSuccessView
+---
 
-- `render(total: number)`
+### `OrderSuccessView`
 
-### ModalView
+**Назначение**: отображение экрана успеха.
 
+**Методы**:
+- `render(total: number): HTMLElement`
+
+---
+
+### `ModalView`
+
+**Назначение**: универсальное модальное окно.
+
+**Методы**:
 - `set content(value: HTMLElement)`
-- `open()`, `close()`, `render()`
+- `open()`, `close()`
+- `render()`
 - `set locked(value: boolean)`
 
 ---
 
-## Презентеры (Presenter)
+## Презентеры
 
-### CatalogPresenter
+### `CatalogPresenter`
 
-- Загружает товары.
-- Рендерит карточки.
-- Открывает модалку с подробностями.
+**Задачи**:
+- Получение товаров от API.
+- Отображение карточек каталога.
+- Открытие подробностей товара в модалке.
 
-### ShoppingCartPresenter
+**Конструктор**:
+```ts
+constructor(events, model, api, templateCard, templatePreview)
+```
 
-- Добавление и удаление товаров.
-- Счётчик и обновление UI.
+---
 
-### CheckoutPresenter
+### `ShoppingCartPresenter`
 
+**Задачи**:
+- Обработка событий "добавить/удалить".
+- Обновление представления корзины.
+- Поддержка счетчика и итога.
+
+**Конструктор**:
+```ts
+constructor(events, cartModel, catalogModel, cartView, itemTemplate, modal)
+```
+
+---
+
+### `CheckoutPresenter`
+
+**Задачи**:
+- Управление шагами оформления.
 - Валидация форм.
-- Отправка заказа.
-- Переходы по шагам.
+- Отправка данных на сервер.
+
+**Конструктор**:
+```ts
+constructor(events, checkoutModel, cartModel, api, paymentView, contactsView, successTemplate, modal)
+```
 
 ---
 
-## Классы API
+## Сервисы
 
-### Api
+### Класс `Api`
 
-Базовый класс для HTTP-запросов.
+Базовый HTTP-клиент.
 
-#### Методы:
-
-- `get(uri: string)`
-- `post(uri: string, data: object, method: 'POST' | 'PUT' | 'DELETE')`
-- `handleResponse(response: Response)`
+**Методы**:
+- `get(uri: string): Promise<object>`
+- `post(uri: string, data: object, method = 'POST'): Promise<object>`
+- `handleResponse(response: Response): Promise<object>`
 
 ---
 
-### WebLarekApi
+### Класс `WebLarekApi`
 
-Расширяет `Api` для работы с товарами и заказами.
+Наследуется от `Api`.
 
-#### Методы:
-
-- `getProducts()`
-- `submitOrder(order: ICheckoutSubmission)`
+**Методы**:
+- `getProducts(): Promise<IProduct[]>`
+- `submitOrder(order: ICheckoutSubmission): Promise<ICheckoutResult>`
 
 ---
 
@@ -283,10 +304,15 @@ interface ICheckoutResult {
 
 ## События
 
+Коммуникация реализована через `EventEmitter`.
+
+**Примеры событий**:
 - `modal:open`, `modal:close`
-- `productCards:receive`, `modalCard:open`
+- `productCards:receive`
+- `modalCard:open`
 - `cart:item:add`, `cart:item:remove`
-- `checkout:payment:select`, `checkout:contacts:valid`
+- `checkout:payment:select`
+- `checkout:contacts:valid`
 - `success:open`, `success:close`
 
 ---
