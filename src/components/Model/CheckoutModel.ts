@@ -1,28 +1,28 @@
 import { IEvents } from '../base/events';
-import { FormErrors } from '../../types/index'
+import { CheckoutFormErrors } from '../../types/index'
 
-export interface IFormModel {
+export interface ICheckoutModel {
   payment: string;
   email: string;
   phone: string;
   address: string;
   total: number;
   items: string[];
-  setOrderAddress(field: string, value: string): void
-  validateOrder(): boolean;
-  setOrderData(field: string, value: string): void
-  validateContacts(): boolean;
-  getOrderLot(): object;
+  setAddress(field: string, value: string): void
+  validatePaymentStep(): boolean;
+  setContactData(field: string, value: string): void
+  validateContactsStep(): boolean;
+  getOrderData(): object;
 }
 
-export class FormModel implements IFormModel {
+export class CheckoutModel implements ICheckoutModel {
   payment: string;
   email: string;
   phone: string;
   address: string;
   total: number;
   items: string[];
-  formErrors: FormErrors = {};
+  formErrors: CheckoutFormErrors = {};
 
   constructor(protected events: IEvents) {
     this.payment = '';
@@ -34,18 +34,18 @@ export class FormModel implements IFormModel {
   }
 
   // принимаем значение строки "address"
-  setOrderAddress(field: string, value: string) {
+  setAddress(field: string, value: string) {
     if (field === 'address') {
       this.address = value;
     }
 
-    if (this.validateOrder()) {
-      this.events.emit('order:ready', this.getOrderLot());
+    if (this.validatePaymentStep()) {
+      this.events.emit('checkout:payment:valid', this.getOrderData());
     }
   }
 
   // валидация данных строки "address"
-  validateOrder() {
+  validatePaymentStep() {
     const regexp = /^[а-яА-ЯёЁa-zA-Z0-9\s\/.,-]{7,}$/;
     const errors: typeof this.formErrors = {};
 
@@ -58,25 +58,25 @@ export class FormModel implements IFormModel {
     }
 
     this.formErrors = errors;
-    this.events.emit('formErrors:address', this.formErrors);
+    this.events.emit('checkout:validation:address', this.formErrors);
     return Object.keys(errors).length === 0;
   }
 
   // принимаем значение данных строк "Email" и "Телефон"
-  setOrderData(field: string, value: string) {
+  setContactData(field: string, value: string) {
     if (field === 'email') {
       this.email = value;
     } else if (field === 'phone') {
       this.phone = value;
     }
 
-    if (this.validateContacts()) {
-      this.events.emit('order:ready', this.getOrderLot());
+    if (this.validateContactsStep()) {
+      this.events.emit('checkout:contacts:valid', this.getOrderData());
     }
   }
 
   // Валидация данных строк "Email" и "Телефон"
-  validateContacts() {
+  validateContactsStep() {
     const regexpEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
     const regexpPhone = /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{10}$/;
     const errors: typeof this.formErrors = {};
@@ -98,11 +98,11 @@ export class FormModel implements IFormModel {
     }
 
     this.formErrors = errors;
-    this.events.emit('formErrors:change', this.formErrors);
+    this.events.emit('checkout:validation:contacts', this.formErrors);
     return Object.keys(errors).length === 0;
   }
 
-  getOrderLot() {
+  getOrderData() {
     return {
       payment: this.payment,
       email: this.email,

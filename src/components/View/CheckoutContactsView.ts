@@ -8,7 +8,7 @@ export interface IContacts {
   render(): HTMLElement;
 }
 
-export class Contacts implements IContacts {
+export class CheckoutContactsView implements IContacts {
   formContacts: HTMLFormElement;
   inputAll: HTMLInputElement[];
   buttonSubmit: HTMLButtonElement;

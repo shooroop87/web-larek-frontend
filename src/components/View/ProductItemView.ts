@@ -1,11 +1,11 @@
-import { IActions, IProductItem } from "../../types";
+import { IEventHandlers, IProduct } from "../../types";
 import { IEvents } from "../base/events";
 
-export interface ICard {
-  render(data: IProductItem): HTMLElement;
+export interface IProductItemView {
+  render(data: IProduct): HTMLElement;
 }
 
-export class Card implements ICard {
+export class ProductItemView implements IProductItemView {
   protected _cardElement: HTMLElement;
   protected _cardCategory: HTMLElement;
   protected _cardTitle: HTMLElement;
@@ -19,7 +19,7 @@ export class Card implements ICard {
     "другое": "other",
   }
   
-  constructor(template: HTMLTemplateElement, protected events: IEvents, actions?: IActions) {
+  constructor(template: HTMLTemplateElement, protected events: IEvents, actions?: IEventHandlers) {
     this._cardElement = template.content.querySelector('.card').cloneNode(true) as HTMLElement;
     this._cardCategory = this._cardElement.querySelector('.card__category');
     this._cardTitle = this._cardElement.querySelector('.card__title');
@@ -30,27 +30,27 @@ export class Card implements ICard {
       this._cardElement.addEventListener('click', actions.onClick);
     }
   }
-
+  
   protected setText(element: HTMLElement, value: unknown): string | undefined {
-	if (element) {
-	  return element.textContent = String(value);
-	}
-	return undefined;
+    if (element) {
+      return element.textContent = String(value);
+    }
+    return undefined;
   }
-
+  
   set cardCategory(value: string) {
     this.setText(this._cardCategory, value);
     this._cardCategory.className = `card__category card__category_${this._colors[value]}`
   }
-
+  
   protected setPrice(value: number | null): string {
     if (value === null) {
       return 'Бесценно'
     }
     return String(value) + ' синапсов'
   }
-
-  render(data: IProductItem): HTMLElement {
+  
+  render(data: IProduct): HTMLElement {
     this._cardCategory.textContent = data.category;
     this.cardCategory = data.category;
     this._cardTitle.textContent = data.title;

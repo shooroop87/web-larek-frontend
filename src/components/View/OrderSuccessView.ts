@@ -7,7 +7,7 @@ export interface ISuccess {
   render(total: number): HTMLElement;
 }
 
-export class Success {
+export class OrderSuccessView {
   success: HTMLElement;
   description: HTMLElement;
   button: HTMLButtonElement;
