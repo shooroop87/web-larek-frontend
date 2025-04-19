@@ -9,6 +9,7 @@ export interface IShoppingCartView {
   cartTotal: HTMLElement;
   headerCartButton: HTMLButtonElement;
   headerCartCounter: HTMLElement;
+  items: HTMLElement[];
   renderHeaderCartCounter(value: number): void;
   renderTotal(total: number): void;
   render(): HTMLElement;
@@ -32,8 +33,15 @@ export class ShoppingCartView implements IShoppingCartView {
     this.headerCartButton = document.querySelector('.header__basket');
     this.headerCartCounter = document.querySelector('.header__basket-counter');
     
-    this.checkoutButton.addEventListener('click', () => { this.events.emit('checkout:step:payment') });
-    this.headerCartButton.addEventListener('click', () => { this.events.emit('cart:open') });
+    // При клике на кнопку оформления заказа генерируем событие
+    this.checkoutButton.addEventListener('click', () => { 
+      this.events.emit('checkout:step:payment');
+    });
+    
+    // При клике на иконку корзины в шапке генерируем событие
+    this.headerCartButton.addEventListener('click', () => { 
+      this.events.emit('cart:open');
+    });
     
     this.items = [];
   }

@@ -1,33 +1,52 @@
 import { IEvents } from "../base/events";
 import { ShoppingCartModel } from "../Model/ShoppingCartModel";
 import { ProductCollectionModel } from "../Model/ProductCollectionModel";
+import { ShoppingCartView } from "../View/ShoppingCartView";
+import { CartItemView } from "../View/CartItemView";
+import { ModalView } from "../View/ModalView";
+import { IProduct } from "../../types";
 
 export class ShoppingCartPresenter {
   constructor(
     private events: IEvents,
     private cartModel: ShoppingCartModel,
-    private catalogModel: ProductCollectionModel
+    private catalogModel: ProductCollectionModel,
+    private cartView: ShoppingCartView,
+    private cartItemTemplate: HTMLTemplateElement,
+    private modal: ModalView
   ) {
     // Добавление товара в корзину
     this.events.on('cart:item:add', () => {
       this.cartModel.addProduct(this.catalogModel.selectedProduct);
-      this.events.emit('cart:counter:update', this.cartModel.getItemCount());
-      this.events.emit('dialog:close');
-    });
-
-    // Удаление товара из корзины
-    this.events.on('cart:item:remove', (item) => {
-      this.cartModel.removeProduct(item);
-      this.events.emit('cart:counter:update', this.cartModel.getItemCount());
-      this.events.emit('cart:total:update', this.cartModel.getTotal());
+      this.cartView.renderHeaderCartCounter(this.cartModel.getItemCount());
+      this.modal.close();
     });
 
     // Открытие корзины
     this.events.on('cart:open', () => {
-      this.events.emit('cart:render', {
-        items: this.cartModel.products,
-        total: this.cartModel.getTotal()
+      this.cartView.renderTotal(this.cartModel.getTotal());
+      this.cartView.items = this.renderCartItems();
+      this.modal.content = this.cartView.render();
+      this.modal.render();
+    });
+
+    // Удаление товара из корзины
+    this.events.on('cart:item:remove', (item: IProduct) => {
+      this.cartModel.removeProduct(item);
+      this.cartView.renderHeaderCartCounter(this.cartModel.getItemCount());
+      this.cartView.renderTotal(this.cartModel.getTotal());
+      this.cartView.items = this.renderCartItems();
+    });
+  }
+
+  private renderCartItems() {
+    let index = 0;
+    return this.cartModel.products.map((item) => {
+      const cartItem = new CartItemView(this.cartItemTemplate, this.events, {
+        onClick: () => this.events.emit('cart:item:remove', item)
       });
+      index++;
+      return cartItem.render(item, index);
     });
   }
 }

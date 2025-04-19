@@ -3,7 +3,9 @@ import { IEvents } from "../base/events";
 export interface IModalView {
   open(): void;
   close(): void;
-  render(): HTMLElement
+  render(): HTMLElement;
+  content: HTMLElement;
+  locked: boolean;
 }
 
 export class ModalView implements IModalView {
@@ -21,6 +23,12 @@ export class ModalView implements IModalView {
     this.closeButton.addEventListener('click', this.close.bind(this));
     this.modalContainer.addEventListener('click', this.close.bind(this));
     this.modalContainer.querySelector('.modal__container').addEventListener('click', event => event.stopPropagation());
+    
+    // Обработчик события для установки содержимого модального окна
+    this.events.on('modal:content', (content: HTMLElement) => {
+      this.content = content;
+      this.render();
+    });
   }
 
   // принимает элемент разметки которая будет отображаться в "modal__content" модального окна
@@ -52,8 +60,7 @@ export class ModalView implements IModalView {
   }
 
   render(): HTMLElement {
-    this._content;
     this.open();
-    return this.modalContainer
+    return this.modalContainer;
   }
 }
