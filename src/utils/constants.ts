@@ -4,14 +4,15 @@ export const API_URL = `${process.env.API_ORIGIN}/api/weblarek`;
 export const settings = {};
 
 export const ERROR_MESSAGES = {
-    required: 'Это поле обязательно для заполнения',
-    invalidEmail: 'Введите корректный email',
-    invalidPhone: 'Введите корректный номер телефона',
+    required: "Пожалуйста, заполните это поле",
+    invalidEmail: "Введите корректный Email, например: name@example.com",
+    invalidPhone: "Введите номер телефона в формате: +71234567890",
 };
 
-export const CATEGORY_SETTINGS = {
-    books: 'Книги',
-    clothing: 'Одежда',
-    electronics: 'Электроника',
-    toys: 'Игрушки',
+export const CATEGORY_COLORS: Record<string, string> = {
+    "дополнительное": "additional",
+    "софт-скил": "soft",
+    "кнопка": "button",
+    "хард-скил": "hard",
+    "другое": "other"
 };

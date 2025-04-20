@@ -94,7 +94,7 @@ export class CheckoutModel implements ICheckoutModel {
     if (!this.email) {
       errors.email = 'Необходимо указать email';
     } else if (!regexpEmail.test(this.email)) {
-      errors.email = 'Некорректный адрес электронной почты';
+      errors.email = 'Введите email в формате name@example.com';
     }
 
     if (this.phone.startsWith('8')) {
@@ -104,7 +104,7 @@ export class CheckoutModel implements ICheckoutModel {
     if (!this.phone) {
       errors.phone = 'Необходимо указать телефон';
     } else if (!regexpPhone.test(this.phone)) {
-      errors.phone = 'Некорректный формат номера телефона';
+      errors.phone = 'Введите номер в формате +71234567890';
     }
 
     this.formErrors = errors;

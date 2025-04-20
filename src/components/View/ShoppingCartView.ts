@@ -1,23 +1,14 @@
 import { createElement } from "../../utils/utils";
 import { IEvents } from "../base/events";
+import { Component } from "../base/Component";
 
-// Интерфейс для представления корзины с покупками
 export interface IShoppingCartView {
-  cartContainer: HTMLElement;
-  title: HTMLElement;
-  cartList: HTMLElement;
-  checkoutButton: HTMLButtonElement;
-  cartTotal: HTMLElement;
-  headerCartButton: HTMLButtonElement;
-  headerCartCounter: HTMLElement;
-  items: HTMLElement[];
   renderHeaderCartCounter(value: number): void;
   renderTotal(total: number): void;
   render(): HTMLElement;
 }
 
-// Класс для представления корзины с покупками
-export class ShoppingCartView implements IShoppingCartView {
+export class ShoppingCartView extends Component<HTMLElement> implements IShoppingCartView {
   cartContainer: HTMLElement;
   title: HTMLElement;
   cartList: HTMLElement;
@@ -27,13 +18,16 @@ export class ShoppingCartView implements IShoppingCartView {
   headerCartCounter: HTMLElement;
 
   constructor(template: HTMLTemplateElement, protected events: IEvents) {
-    this.cartContainer = template.content.querySelector('.basket').cloneNode(true) as HTMLElement;
-    this.title = this.cartContainer.querySelector('.modal__title');
-    this.cartList = this.cartContainer.querySelector('.basket__list');
-    this.checkoutButton = this.cartContainer.querySelector('.basket__button');
-    this.cartTotal = this.cartContainer.querySelector('.basket__price');
-    this.headerCartButton = document.querySelector('.header__basket');
-    this.headerCartCounter = document.querySelector('.header__basket-counter');
+    const basket = template.content.querySelector('.basket')!.cloneNode(true) as HTMLElement;
+    super(basket);
+
+    this.cartContainer = basket;
+    this.title = basket.querySelector('.modal__title')!;
+    this.cartList = basket.querySelector('.basket__list')!;
+    this.checkoutButton = basket.querySelector('.basket__button')!;
+    this.cartTotal = basket.querySelector('.basket__price')!;
+    this.headerCartButton = document.querySelector('.header__basket')!;
+    this.headerCartCounter = document.querySelector('.header__basket-counter')!;
 
     // Обработка клика оформления заказа
     this.checkoutButton.addEventListener('click', () => {
@@ -48,7 +42,6 @@ export class ShoppingCartView implements IShoppingCartView {
     this.items = [];
   }
 
-  // Список элементов корзины
   set items(items: HTMLElement[]) {
     if (items.length) {
       this.cartList.replaceChildren(...items);
@@ -61,18 +54,19 @@ export class ShoppingCartView implements IShoppingCartView {
     }
   }
 
-  // Отображение кол-ва товаров на корзине
   renderHeaderCartCounter(value: number) {
-    this.headerCartCounter.textContent = String(value);
+    if (this.headerCartCounter) {
+      this.headerCartCounter.textContent = String(value);
+    }
   }
 
-  // Итоговая сумма заказа
   renderTotal(total: number) {
-    this.cartTotal.textContent = String(total + ' синапсов');
+    if (this.cartTotal) {
+      this.cartTotal.textContent = `${total} синапсов`;
+    }
   }
 
-  // Рендерю корзину
-  render() {
+  render(): HTMLElement {
     this.title.textContent = 'Корзина';
     return this.cartContainer;
   }
