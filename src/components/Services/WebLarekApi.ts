@@ -4,15 +4,13 @@ import { ICheckoutSubmission, ICheckoutResult, IProduct } from '../../types';
 // Интерфейс, описывающий методы и свойства API WebLarek
 export interface IWebLarekApi {
   cdn: string;
-  products: IProduct[];
   getProducts: () => Promise<IProduct[]>;
   submitOrder: (order: ICheckoutSubmission) => Promise<ICheckoutResult>;
 }
 
 // Класс для работы с API WebLarek
-export class WebLarekApi extends Api {
+export class WebLarekApi extends Api implements IWebLarekApi {
   cdn: string;
-  products: IProduct[];
 
   constructor(cdn: string, baseUrl: string, options?: RequestInit) {
     super(baseUrl, options);

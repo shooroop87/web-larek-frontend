@@ -5,7 +5,7 @@ import { CDN_URL, API_URL } from './utils/constants';
 import { EventEmitter } from './components/base/events';
 import { WebLarekApi } from './components/Services/WebLarekApi';
 import { ProductCollectionModel } from './components/Model/ProductCollectionModel';
-import { ensureElement } from './utils/utils';
+import { ensureElement, ensureAllElements } from './utils/utils';
 import { ShoppingCartModel } from './components/Model/ShoppingCartModel';
 import { CheckoutModel } from './components/Model/CheckoutModel';
 import { ModalView } from './components/View/ModalView';
@@ -21,17 +21,19 @@ import { ShoppingCartPresenter } from './components/Presenters/ShoppingCartPrese
 import { CheckoutPresenter } from './components/Presenters/CheckoutPresenter';
 
 // ==================== Данные из шаблонов DOM ====================
-const productCardTemplate = document.querySelector('#card-catalog') as HTMLTemplateElement;
-const productDetailsTemplate = document.querySelector('#card-preview') as HTMLTemplateElement;
-const cartTemplate = document.querySelector('#basket') as HTMLTemplateElement;
-const cartItemTemplate = document.querySelector('#card-basket') as HTMLTemplateElement;
-const checkoutPaymentTemplate = document.querySelector('#order') as HTMLTemplateElement;
-const checkoutContactsTemplate = document.querySelector('#contacts') as HTMLTemplateElement;
-const successTemplate = document.querySelector('#success') as HTMLTemplateElement;
+const productCardTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
+const productDetailsTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
+const cartTemplate = ensureElement<HTMLTemplateElement>('#basket');
+const cartItemTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
+const checkoutPaymentTemplate = ensureElement<HTMLTemplateElement>('#order');
+const checkoutContactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
+const successTemplate = ensureElement<HTMLTemplateElement>('#success');
 
 // ==================== Элементы интерфейса ====================
 const headerCartButton = ensureElement<HTMLButtonElement>('.header__basket');
 const headerCartCounter = ensureElement<HTMLElement>('.header__basket-counter');
+// Получаем все кнопки закрытия модальных окон сразу
+const modalCloseButtons = ensureAllElements<HTMLButtonElement>('.modal__close');
 
 // ==================== Инициализация базовых компонентов ====================
 const events = new EventEmitter();
@@ -93,7 +95,8 @@ events.on('modal:close', () => {
   modal.locked = false;
 });
 
-document.querySelectorAll('.modal__close').forEach((btn) => {
+// Добавляем обработчики закрытия модальных окон для найденных заранее кнопок
+modalCloseButtons.forEach((btn) => {
   btn.addEventListener('click', () => {
     modal.close();
   });

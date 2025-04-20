@@ -1,6 +1,6 @@
 import { IEvents } from '../base/events';
 import { CheckoutFormErrors, ICheckoutSubmission } from '../../types';
-import { ERROR_MESSAGES } from '../../utils/constants';
+import { ERROR_MESSAGES, REGEX } from '../../utils/constants';
 
 export interface ICheckoutModel {
   payment: string;
@@ -57,12 +57,11 @@ export class CheckoutModel implements ICheckoutModel {
   }
 
   validatePaymentStep(): boolean {
-    const regexp = /^[а-яА-ЯёЁa-zA-Z0-9\s\/.,-]{7,}$/;
     const errors: typeof this.formErrors = {};
 
     if (!this.address) {
       errors.address = ERROR_MESSAGES.required;
-    } else if (!regexp.test(this.address)) {
+    } else if (!REGEX.ADDRESS.test(this.address)) {
       errors.address = 'Укажите настоящий адрес';
     }
 
@@ -88,13 +87,11 @@ export class CheckoutModel implements ICheckoutModel {
   }
 
   validateContactsStep(): boolean {
-    const regexpEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-    const regexpPhone = /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{10}$/;
     const errors: typeof this.formErrors = {};
 
     if (!this.email) {
       errors.email = ERROR_MESSAGES.emailRequired;
-    } else if (!regexpEmail.test(this.email)) {
+    } else if (!REGEX.EMAIL.test(this.email)) {
       errors.email = ERROR_MESSAGES.emailInvalid;
     }
 
@@ -104,7 +101,7 @@ export class CheckoutModel implements ICheckoutModel {
 
     if (!this.phone) {
       errors.phone = ERROR_MESSAGES.phoneRequired;
-    } else if (!regexpPhone.test(this.phone)) {
+    } else if (!REGEX.PHONE.test(this.phone)) {
       errors.phone = ERROR_MESSAGES.phoneInvalid;
     }
 

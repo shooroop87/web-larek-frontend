@@ -7,8 +7,11 @@ import { CheckoutContactsView } from "../View/CheckoutContactsView";
 import { ModalView } from "../View/ModalView";
 import { ICheckoutForm } from "../../types";
 import { ShoppingCartView } from "../View/ShoppingCartView";
+import { OrderSuccessView } from "../View/OrderSuccessView";
 
 export class CheckoutPresenter {
+  private successView: OrderSuccessView;
+
   constructor(
     private events: IEvents,
     private checkoutModel: CheckoutModel,
@@ -20,6 +23,9 @@ export class CheckoutPresenter {
     private modal: ModalView,
     private cartView?: ShoppingCartView
   ) {
+    // Инициализируем OrderSuccessView сразу в конструкторе
+    this.successView = new OrderSuccessView(successTemplate);
+
     // Шаг 1: выбор способа оплаты
     this.events.on("checkout:step:payment", () => {
       this.checkoutModel.items = this.cartModel.products.map((item) => item.id);
@@ -73,8 +79,19 @@ export class CheckoutPresenter {
         .then(() => {
           this.cartModel.clear();
           const total = this.checkoutModel.total;
-          this.events.emit("checkout:success:show", { total });
+          
+          // Подготавливаем отображение успешного заказа
+          const content = this.successView.render({ total });
+          this.modal.content = content;
+          this.modal.render();
+          
+          // Настраиваем обработчик закрытия
+          this.successView.setCloseHandler(() => {
+            this.modal.close();
+            this.events.emit("order:success:close");
+          });
 
+          // Обновляем счетчик корзины
           if (this.cartView) {
             this.cartView.renderHeaderCartCounter(0);
           } else {

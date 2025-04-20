@@ -2,7 +2,6 @@ import { IEvents } from "../base/events";
 import { ShoppingCartModel } from "../Model/ShoppingCartModel";
 import { ProductCollectionModel } from "../Model/ProductCollectionModel";
 import { ShoppingCartView } from "../View/ShoppingCartView";
-import { CartItemView } from "../View/CartItemView";
 import { ModalView } from "../View/ModalView";
 import { IProduct } from "../../types";
 
@@ -25,7 +24,7 @@ export class ShoppingCartPresenter {
     // Открытие корзины
     this.events.on("cart:open", () => {
       this.cartView.renderTotal(this.cartModel.getTotal());
-      this.cartView.items = this.renderCartItems();
+      this.cartView.updateCartItems(this.cartModel.products, this.cartItemTemplate);
       this.events.emit("modal:open", this.cartView.render());
     });
 
@@ -35,21 +34,10 @@ export class ShoppingCartPresenter {
     });
 
     // Обновление корзины после изменений
-    this.events.on("cart:changed", () => {
+    this.events.on("cart:changed", (products: IProduct[]) => {
       this.cartView.renderHeaderCartCounter(this.cartModel.getItemCount());
       this.cartView.renderTotal(this.cartModel.getTotal());
-      this.cartView.items = this.renderCartItems();
-    });
-  }
-
-  private renderCartItems(): HTMLElement[] {
-    let index = 0;
-    return this.cartModel.products.map((item) => {
-      const cartItem = new CartItemView(this.cartItemTemplate, this.events, {
-        onClick: () => this.events.emit("cart:item:remove", item),
-      });
-      index++;
-      return cartItem.renderCartItem(item, index);
+      this.cartView.updateCartItems(this.cartModel.products, this.cartItemTemplate);
     });
   }
 }

@@ -11,7 +11,19 @@ export const ERROR_MESSAGES = {
     emailInvalid: "Введите email в формате name@example.com",
     phoneRequired: "Необходимо указать телефон",
     phoneInvalid: "Введите номер в формате +71234567890"
-  };
+};
+
+// Регулярные выражения для валидации
+export const REGEX = {
+    // Для адреса - минимум 7 символов, буквы, цифры и спец. символы
+    ADDRESS: /^[а-яА-ЯёЁa-zA-Z0-9\s\/.,-]{7,}$/,
+    
+    // Для email - стандартный формат email
+    EMAIL: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+    
+    // Для телефона - российский формат телефона
+    PHONE: /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{10}$/
+};
 
 export const CATEGORY_COLORS: Record<string, string> = {
     "дополнительное": "additional",

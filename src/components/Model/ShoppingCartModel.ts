@@ -1,4 +1,3 @@
-
 import { IProduct } from "../../types";
 import { IEvents } from "../base/events";
 
@@ -12,45 +11,49 @@ export interface IShoppingCartModel {
   clear(): void;
 }
 
+export interface ICartData {
+  products: IProduct[];
+  count: number; 
+  total: number;
+}
+
 // Класс модели корзины
 export class ShoppingCartModel implements IShoppingCartModel {
   protected _products: IProduct[];
+  protected _events: IEvents;
 
-  constructor(private events: IEvents) {
+  constructor(events: IEvents) {
     this._products = [];
+    this._events = events;
   }
 
-  set products(data: IProduct[]) {
-    this._products = data;
-  }
-
-  get products() {
+  get products(): IProduct[] {
     return this._products;
   }
 
-  getItemCount() {
-    return this.products.length;
+  getItemCount(): number {
+    return this._products.length;
   }
 
-  getTotal() {
-    return this.products.reduce((sum, item) => sum + item.price, 0);
+  getTotal(): number {
+    return this._products.reduce((sum, item) => sum + item.price, 0);
   }
 
-  addProduct(data: IProduct) {
-    this._products.push(data);
-    this.events.emit('cart:changed', this._products);
+  addProduct(item: IProduct): void {
+    this._products.push(item);
+    this._events.emit('cart:changed', { products: this.products, count: this.getItemCount(), total: this.getTotal() });
   }
 
-  removeProduct(item: IProduct) {
-    const index = this._products.indexOf(item);
-    if (index >= 0) {
+  removeProduct(item: IProduct): void {
+    const index = this._products.findIndex((product) => product.id === item.id);
+    if (index !== -1) {
       this._products.splice(index, 1);
-      this.events.emit('cart:changed', this._products);
+      this._events.emit('cart:changed', { products: this.products, count: this.getItemCount(), total: this.getTotal() });
     }
   }
 
-  clear() {
-    this.products = [];
-    this.events.emit('cart:changed', this._products);
+  clear(): void {
+    this._products = [];
+    this._events.emit('cart:changed', { products: this.products, count: 0, total: 0 });
   }
 }

@@ -1,55 +1,76 @@
 import { IEvents } from "../base/events";
+import { Component } from "../base/Component";
+import { ensureElement } from "../../utils/utils";
 
+// Интерфейс для данных модального окна
+interface IModalData {
+  content: HTMLElement;
+}
+
+// Интерфейс для представления модального окна
 export interface IModalView {
   open(): void;
   close(): void;
-  render(): HTMLElement;
+  render(data?: IModalData): HTMLElement;
   content: HTMLElement;
   locked: boolean;
 }
 
-export class ModalView implements IModalView {
-  protected modalContainer: HTMLElement;
-  protected closeButton: HTMLButtonElement;
+// Класс для представления модального окна
+export class ModalView extends Component<IModalData> implements IModalView {
+  protected _closeButton: HTMLButtonElement;
   protected _content: HTMLElement;
+  protected _container: HTMLElement;
   protected _pageWrapper: HTMLElement;
 
-  constructor(modalContainer: HTMLElement, protected events: IEvents) {
-    this.modalContainer = modalContainer;
-    this.closeButton = modalContainer.querySelector('.modal__close');
-    this._content = modalContainer.querySelector('.modal__content');
-    this._pageWrapper = document.querySelector('.page__wrapper');
-
+  constructor(container: HTMLElement, protected events: IEvents) {
+    super(container);
+    
+    this._container = container;
+    this._closeButton = ensureElement<HTMLButtonElement>('.modal__close', container);
+    this._content = ensureElement<HTMLElement>('.modal__content', container);
+    this._pageWrapper = ensureElement<HTMLElement>('.page__wrapper');
+    
     // Закрытие по кнопке
-    this.closeButton.addEventListener('click', this.close.bind(this));
-
+    this._closeButton.addEventListener('click', this.close.bind(this));
+    
     // Закрытие по клику вне модального окна
-    this.modalContainer.addEventListener('click', this.close.bind(this));
-    this.modalContainer.querySelector('.modal__container').addEventListener('click', event => event.stopPropagation());
-
-    // Слушаю событие modal:open
+    this._container.addEventListener('click', this.close.bind(this));
+    
+    // Предотвращение закрытия при клике на контент
+    ensureElement<HTMLElement>('.modal__container', container).addEventListener('click', 
+      event => event.stopPropagation()
+    );
+    
+    // Обработка события modal:open из других компонентов
     this.events.on('modal:open', (content: HTMLElement) => {
-      this.content = content;
-      this.render();
+      if (content) {
+        this.content = content;
+      }
+      
+      // Не вызываем open() здесь, чтобы избежать рекурсии
+      this._container.classList.add('modal_active');
     });
   }
 
+  // Сеттер контента модального окна
   set content(value: HTMLElement) {
     this._content.replaceChildren(value);
   }
 
+  // Открытие модального окна
   open(): void {
-    this.modalContainer.classList.add('modal_active');
+    this._container.classList.add('modal_active');
+    // Не генерируем событие modal:open здесь, чтобы избежать рекурсии
   }
 
-  close() {
-    const activeModal = document.querySelector('.modal.modal_active') as HTMLElement;
-    if (activeModal) {
-      activeModal.classList.remove('modal_active');
-      this.events.emit('modal:close');
-    }
+  // Закрытие модального окна
+  close(): void {
+    this._container.classList.remove('modal_active');
+    this.events.emit('modal:close');
   }
 
+  // Сеттер блокировки страницы
   set locked(value: boolean) {
     if (value) {
       this._pageWrapper.classList.add('page__wrapper_locked');
@@ -58,8 +79,12 @@ export class ModalView implements IModalView {
     }
   }
 
-  render(): HTMLElement {
-    this.open();
-    return this.modalContainer;
+  // Рендеринг модального окна
+  render(data?: IModalData): HTMLElement {
+    if (data?.content) {
+      this.content = data.content;
+    }
+    this._container.classList.add('modal_active');
+    return this._container;
   }
 }
