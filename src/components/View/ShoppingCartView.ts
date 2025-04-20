@@ -14,10 +14,13 @@ export class ShoppingCartView extends Component<HTMLElement> implements IShoppin
   cartList: HTMLElement;
   checkoutButton: HTMLButtonElement;
   cartTotal: HTMLElement;
-  headerCartButton: HTMLButtonElement;
-  headerCartCounter: HTMLElement;
 
-  constructor(template: HTMLTemplateElement, protected events: IEvents) {
+  constructor(
+    template: HTMLTemplateElement,
+    protected events: IEvents,
+    protected headerCartButton: HTMLButtonElement,
+    protected headerCartCounter: HTMLElement
+  ) {
     const basket = template.content.querySelector('.basket')!.cloneNode(true) as HTMLElement;
     super(basket);
 
@@ -26,15 +29,11 @@ export class ShoppingCartView extends Component<HTMLElement> implements IShoppin
     this.cartList = basket.querySelector('.basket__list')!;
     this.checkoutButton = basket.querySelector('.basket__button')!;
     this.cartTotal = basket.querySelector('.basket__price')!;
-    this.headerCartButton = document.querySelector('.header__basket')!;
-    this.headerCartCounter = document.querySelector('.header__basket-counter')!;
 
-    // Обработка клика оформления заказа
     this.checkoutButton.addEventListener('click', () => {
       this.events.emit('checkout:step:payment');
     });
 
-    // Обработка клика по иконке корзины
     this.headerCartButton.addEventListener('click', () => {
       this.events.emit('cart:open');
     });

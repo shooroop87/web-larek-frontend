@@ -29,6 +29,10 @@ const checkoutPaymentTemplate = document.querySelector('#order') as HTMLTemplate
 const checkoutContactsTemplate = document.querySelector('#contacts') as HTMLTemplateElement;
 const successTemplate = document.querySelector('#success') as HTMLTemplateElement;
 
+// ==================== Элементы интерфейса ====================
+const headerCartButton = ensureElement<HTMLButtonElement>('.header__basket');
+const headerCartCounter = ensureElement<HTMLElement>('.header__basket-counter');
+
 // ==================== Инициализация базовых компонентов ====================
 const events = new EventEmitter();
 const api = new WebLarekApi(CDN_URL, API_URL);
@@ -40,7 +44,7 @@ const cartModel = new ShoppingCartModel(events);
 const checkoutModel = new CheckoutModel(events);
 
 // ==================== Инициализация представлений ====================
-const cartView = new ShoppingCartView(cartTemplate, events);
+const cartView = new ShoppingCartView(cartTemplate, events, headerCartButton, headerCartCounter);
 const paymentView = new CheckoutPaymentView(checkoutPaymentTemplate, events, modal);
 const contactsView = new CheckoutContactsView(checkoutContactsTemplate, events, modal);
 const successView = new OrderSuccessView(successTemplate);
@@ -50,8 +54,6 @@ const catalogView = new CatalogView(
   productCardTemplate,
   catalogModel
 );
-
-successView.setCloseHandler(() => modal.close());
 
 // ==================== Инициализация презентеров ====================
 const catalogPresenter = new CatalogPresenter(
@@ -98,6 +100,12 @@ document.querySelectorAll('.modal__close').forEach((btn) => {
 });
 
 events.on("checkout:success:show", (data: { total: number }) => {
-  modal.content = successView.render({ total: data.total });
+  const content = successView.render({ total: data.total });
+  modal.content = content;
   modal.render();
+
+  successView.setCloseHandler(() => {
+    modal.close();
+    events.emit("order:success:close");
+  });
 });
