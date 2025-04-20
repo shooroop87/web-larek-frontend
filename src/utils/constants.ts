@@ -5,9 +5,13 @@ export const settings = {};
 
 export const ERROR_MESSAGES = {
     required: "Пожалуйста, заполните это поле",
-    invalidEmail: "Введите корректный Email, например: name@example.com",
+    invalidEmail: "Введите email в формате name@example.com",
     invalidPhone: "Введите номер телефона в формате: +71234567890",
-};
+    emailRequired: "Необходимо указать email",
+    emailInvalid: "Введите email в формате name@example.com",
+    phoneRequired: "Необходимо указать телефон",
+    phoneInvalid: "Введите номер в формате +71234567890"
+  };
 
 export const CATEGORY_COLORS: Record<string, string> = {
     "дополнительное": "additional",

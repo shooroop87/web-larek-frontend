@@ -13,7 +13,7 @@ import { ShoppingCartView } from './components/View/ShoppingCartView';
 import { CheckoutPaymentView } from './components/View/CheckoutPaymentView';
 import { CheckoutContactsView } from './components/View/CheckoutContactsView';
 import { OrderSuccessView } from './components/View/OrderSuccessView';
-import { IProduct } from './types';
+import { CatalogView } from './components/View/CatalogView';
 
 // ==================== Импорт презентеров ====================
 import { CatalogPresenter } from './components/Presenters/CatalogPresenter';
@@ -41,24 +41,31 @@ const checkoutModel = new CheckoutModel(events);
 
 // ==================== Инициализация представлений ====================
 const cartView = new ShoppingCartView(cartTemplate, events);
-const paymentView = new CheckoutPaymentView(checkoutPaymentTemplate, events);
-const contactsView = new CheckoutContactsView(checkoutContactsTemplate, events);
+const paymentView = new CheckoutPaymentView(checkoutPaymentTemplate, events, modal);
+const contactsView = new CheckoutContactsView(checkoutContactsTemplate, events, modal);
 const successView = new OrderSuccessView(successTemplate);
+const catalogView = new CatalogView(
+  ensureElement<HTMLElement>('.gallery'),
+  events,
+  productCardTemplate,
+  catalogModel
+);
+
+successView.setCloseHandler(() => modal.close());
 
 // ==================== Инициализация презентеров ====================
 const catalogPresenter = new CatalogPresenter(
-  events, 
-  catalogModel, 
-  api, 
-  productCardTemplate, 
+  events,
+  catalogModel,
+  api,
   productDetailsTemplate
 );
 
 const cartPresenter = new ShoppingCartPresenter(
-  events, 
-  cartModel, 
-  catalogModel, 
-  cartView, 
+  events,
+  cartModel,
+  catalogModel,
+  cartView,
   cartItemTemplate,
   modal
 );
@@ -88,4 +95,9 @@ document.querySelectorAll('.modal__close').forEach((btn) => {
   btn.addEventListener('click', () => {
     modal.close();
   });
+});
+
+events.on("checkout:success:show", (data: { total: number }) => {
+  modal.content = successView.render({ total: data.total });
+  modal.render();
 });

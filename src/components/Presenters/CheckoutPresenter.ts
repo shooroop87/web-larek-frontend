@@ -4,10 +4,9 @@ import { ShoppingCartModel } from "../Model/ShoppingCartModel";
 import { WebLarekApi } from "../Services/WebLarekApi";
 import { CheckoutPaymentView } from "../View/CheckoutPaymentView";
 import { CheckoutContactsView } from "../View/CheckoutContactsView";
-import { OrderSuccessView } from "../View/OrderSuccessView";
-import { ShoppingCartView } from "../View/ShoppingCartView";
 import { ModalView } from "../View/ModalView";
 import { ICheckoutForm } from "../../types";
+import { ShoppingCartView } from "../View/ShoppingCartView";
 
 export class CheckoutPresenter {
   constructor(
@@ -21,74 +20,71 @@ export class CheckoutPresenter {
     private modal: ModalView,
     private cartView?: ShoppingCartView
   ) {
-    // Открытие модального окна выбора способа оплаты
-    this.events.on('checkout:step:payment', () => {
-      this.checkoutModel.items = this.cartModel.products.map(item => item.id);
-      this.events.emit('modal:open', this.paymentView.render());
+    // Шаг 1: выбор способа оплаты
+    this.events.on("checkout:step:payment", () => {
+      this.checkoutModel.items = this.cartModel.products.map((item) => item.id);
+      this.events.emit("checkout:payment:show");
     });
 
-    // Выбор способа оплаты
-    this.events.on('checkout:payment:select', (button: HTMLButtonElement) => {
+    this.events.on("checkout:payment:select", (button: HTMLButtonElement) => {
       this.checkoutModel.payment = button.name;
     });
 
-    // Изменение адреса доставки
-    this.events.on('checkout:address:change', (data: { field: string, value: string }) => {
+    this.events.on("checkout:address:change", (data: { field: string; value: string }) => {
       this.checkoutModel.setAddress(data.field, data.value);
     });
 
-    // Валидация данных оплаты и адреса
-    this.events.on('checkout:validation:address', (errors: Partial<ICheckoutForm>) => {
+    this.events.on("checkout:validation:address", (errors: Partial<ICheckoutForm>) => {
       const { address, payment } = errors;
       this.paymentView.valid = !address && !payment;
-      this.paymentView.formErrors.textContent = Object.values({address, payment}).filter(i => !!i).join('; ');
+      this.paymentView.formErrors.textContent = Object.values({ address, payment })
+        .filter(Boolean)
+        .join("; ");
     });
 
-    // Открытие модального окна контактной информации
-    this.events.on('checkout:step:contacts', () => {
+    // Шаг 2: форма контактов
+    this.events.on("checkout:step:contacts", () => {
       this.checkoutModel.total = this.cartModel.getTotal();
-      this.modal.content = this.contactsView.render();
-      this.modal.render();
+      this.events.emit("checkout:contacts:show");
     });
 
-    // Изменение контактных данных
-    this.events.on('checkout:contacts:change', (data: { field: string, value: string }) => {
+    this.events.on("checkout:contacts:change", (data: { field: string; value: string }) => {
       this.checkoutModel.setContactData(data.field, data.value);
     });
 
-    // Валидация контактных данных
-    this.events.on('checkout:validation:contacts', (errors: Partial<ICheckoutForm>) => {
+    this.events.on("checkout:validation:contacts", (errors: Partial<ICheckoutForm>) => {
       const { email, phone } = errors;
       this.contactsView.valid = !email && !phone;
-      this.contactsView.formErrors.textContent = Object.values({phone, email}).filter(i => !!i).join('; ');
+      this.contactsView.formErrors.textContent = Object.values({ phone, email })
+        .filter(Boolean)
+        .join("; ");
     });
 
-    // Отправка заказа
-    this.events.on('checkout:process:submit', () => {
-      this.api.submitOrder(this.checkoutModel.getOrderData())
-        .then((data) => {
-          const successView = new OrderSuccessView(this.successTemplate);
+    // Обработка финального сабмита
+    this.events.on("checkout:process:submit", () => {
+      const isValid = this.checkoutModel.validateContactsStep();
 
-          successView.setCloseHandler(() => {
-            this.events.emit('order:success:close');
-          });
-      
-          this.modal.content = successView.render({ total: this.cartModel.getTotal() });
+      if (!isValid) {
+        return;
+      }
+
+      this.api
+        .submitOrder(this.checkoutModel.getOrderData())
+        .then(() => {
           this.cartModel.clear();
-          
+          const total = this.checkoutModel.total;
+          this.events.emit("checkout:success:show", { total });
+
           if (this.cartView) {
-            this.cartView.renderHeaderCartCounter(this.cartModel.getItemCount());
+            this.cartView.renderHeaderCartCounter(0);
           } else {
-            this.events.emit('cart:counter:update', { count: this.cartModel.getItemCount() });
+            this.events.emit("cart:counter:update", { count: 0 });
           }
-          
-          this.modal.render();
         })
-        .catch(error => console.error(error));
+        .catch((error) => console.error("Ошибка при отправке заказа:", error));
     });
 
-    // Закрытие окна успеха
-    this.events.on('order:success:close', () => {
+    this.events.on("order:success:close", () => {
       this.modal.close();
     });
   }

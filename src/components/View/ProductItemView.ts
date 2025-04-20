@@ -1,7 +1,7 @@
 import { IEventHandlers, IProduct } from "../../types";
 import { IEvents } from "../base/events";
 import { Component } from "../base/Component";
-import { CATEGORY_COLORS } from "../../utils/constants"; // ⬅️ добавляем импорт
+import { CATEGORY_COLORS } from "../../utils/constants";
 
 export interface IProductItemView {
   render(data: IProduct): HTMLElement;

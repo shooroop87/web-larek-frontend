@@ -2,7 +2,7 @@
 
 ## Описание проекта
 
-**Web-ларёк** — это учебный интернет-магазин с товарами для веб-разработчиков. Пользователь может просматривать каталог, открывать карточки товаров, добавлять их в корзину и оформлять заказ. Данные приходят с внешнего API. 
+**Web-ларёк** — это учебный интернет-магазин с товарами для веб-разработчиков. Пользователь может просматривать каталог, открывать карточки товаров, добавлять их в корзину и оформлять заказ. Данные приходят с внешнего API.
 
 Проект построен на TypeScript с использованием архитектурного паттерна **MVP (Model-View-Presenter)**. Компоненты слабо связаны между собой и взаимодействуют через событийную систему `EventEmitter`, что обеспечивает масштабируемость и поддержку в долгосрочной перспективе.
 
@@ -12,7 +12,7 @@
 
 ### Установка зависимостей
 
-```bash
+```shell
 npm install
 # или
 yarn
@@ -20,7 +20,7 @@ yarn
 
 ### Запуск проекта в режиме разработки
 
-```bash
+```shell
 npm run start
 # или
 yarn start
@@ -28,7 +28,7 @@ yarn start
 
 ### Сборка проекта
 
-```bash
+```shell
 npm run build
 # или
 yarn build
@@ -41,6 +41,7 @@ yarn build
 Проект построен по паттерну **MVP (Model-View-Presenter)**:
 
 ### Model (Модель)
+
 Модели управляют состоянием данных и их валидацией:
 
 - `ProductCollectionModel` — список товаров и текущий выбранный товар.
@@ -48,6 +49,7 @@ yarn build
 - `CheckoutModel` — данные заказа, пошаговая валидация и сбор информации.
 
 ### View (Представление)
+
 Компоненты интерфейса, реагирующие на действия пользователя:
 
 - `ProductItemView` — карточка товара.
@@ -60,6 +62,7 @@ yarn build
 - `ModalView` — универсальное модальное окно.
 
 ### Presenter (Презентер)
+
 Промежуточное звено между Model и View:
 
 - `CatalogPresenter` — отображение карточек товаров, открытие подробностей.
@@ -87,7 +90,7 @@ src/
 ├── utils/                   # Утилиты и константы
 ├── pages/                   # HTML
 ├── scss/                    # Стили
-├── index.ts                 # Инициализация
+├── index.ts                 # Инициализация и связывание всех слоёв
 ```
 
 ---
@@ -99,6 +102,7 @@ src/
 **Назначение**: отображение карточки товара.
 
 **Методы**:
+
 - `render(data: IProduct): HTMLElement` — отрисовка товара.
 - `set cardCategory(value: string): void` — установка категории с CSS-классом.
 - `setPrice(value: number | null): string` — форматирование цены.
@@ -110,10 +114,12 @@ src/
 **Наследуется от**: `ProductItemView`.
 
 **Дополнительно**:
+
 - `addToCartButton: HTMLElement` — кнопка "Купить".
 - `description: HTMLElement` — описание товара.
 
 **Методы**:
+
 - `render(data: IProduct): HTMLElement`
 - `isForSale(data: IProduct): string` — определяет доступность товара.
 
@@ -124,12 +130,14 @@ src/
 **Назначение**: отображение модального окна корзины.
 
 **Методы**:
+
 - `set items(items: HTMLElement[])`
 - `renderHeaderCartCounter(value: number)`
 - `renderTotal(total: number)`
 - `render(): HTMLElement`
 
 **Элементы**:
+
 - `cartList` — список товаров.
 - `checkoutButton` — кнопка оформления.
 - `headerCartCounter` — счетчик в шапке.
@@ -141,9 +149,11 @@ src/
 **Назначение**: отображение одного товара в корзине.
 
 **Методы**:
+
 - `render(data: IProduct, index: number): HTMLElement`
 
 **Элементы**:
+
 - `title`, `price`, `removeButton`, `index`
 
 ---
@@ -153,11 +163,13 @@ src/
 **Назначение**: форма выбора способа оплаты.
 
 **Методы**:
+
 - `set paymentSelection(value: string)`
 - `set valid(value: boolean)`
 - `render()`
 
 **Особенности**:
+
 - Кнопки оплаты переключаются по клику.
 
 ---
@@ -167,8 +179,10 @@ src/
 **Назначение**: форма ввода email и телефона.
 
 **Методы**:
+
 - `set valid(value: boolean)`
 - `render()`
+- обрабатывает submit формы и эмиттит событие `checkout:process:submit`
 
 ---
 
@@ -177,7 +191,9 @@ src/
 **Назначение**: отображение экрана успеха.
 
 **Методы**:
-- `render(total: number): HTMLElement`
+
+- `render(data: { total: number }): HTMLElement`
+- `setCloseHandler(callback: () => void)` — задаёт поведение при закрытии окна успеха
 
 ---
 
@@ -186,6 +202,7 @@ src/
 **Назначение**: универсальное модальное окно.
 
 **Методы**:
+
 - `set content(value: HTMLElement)`
 - `open()`, `close()`
 - `render()`
@@ -198,12 +215,14 @@ src/
 ### `CatalogPresenter`
 
 **Задачи**:
+
 - Получение товаров от API.
 - Отображение карточек каталога.
 - Открытие подробностей товара в модалке.
 
 **Конструктор**:
-```ts
+
+```
 constructor(events, model, api, templateCard, templatePreview)
 ```
 
@@ -212,12 +231,14 @@ constructor(events, model, api, templateCard, templatePreview)
 ### `ShoppingCartPresenter`
 
 **Задачи**:
+
 - Обработка событий "добавить/удалить".
 - Обновление представления корзины.
 - Поддержка счетчика и итога.
 
 **Конструктор**:
-```ts
+
+```
 constructor(events, cartModel, catalogModel, cartView, itemTemplate, modal)
 ```
 
@@ -226,12 +247,15 @@ constructor(events, cartModel, catalogModel, cartView, itemTemplate, modal)
 ### `CheckoutPresenter`
 
 **Задачи**:
+
 - Управление шагами оформления.
 - Валидация форм.
 - Отправка данных на сервер.
+- После успешной отправки — эмиттит `checkout:success:show`
 
 **Конструктор**:
-```ts
+
+```
 constructor(events, checkoutModel, cartModel, api, paymentView, contactsView, successTemplate, modal)
 ```
 
@@ -244,6 +268,7 @@ constructor(events, checkoutModel, cartModel, api, paymentView, contactsView, su
 Базовый HTTP-клиент.
 
 **Методы**:
+
 - `get(uri: string): Promise<object>`
 - `post(uri: string, data: object, method = 'POST'): Promise<object>`
 - `handleResponse(response: Response): Promise<object>`
@@ -255,6 +280,7 @@ constructor(events, checkoutModel, cartModel, api, paymentView, contactsView, su
 Наследуется от `Api`.
 
 **Методы**:
+
 - `getProducts(): Promise<IProduct[]>`
 - `submitOrder(order: ICheckoutSubmission): Promise<ICheckoutResult>`
 
@@ -262,7 +288,7 @@ constructor(events, checkoutModel, cartModel, api, paymentView, contactsView, su
 
 ## Типы данных
 
-```ts
+```
 interface IProduct {
   id: string;
   title: string;
@@ -307,12 +333,28 @@ interface ICheckoutResult {
 Коммуникация реализована через `EventEmitter`.
 
 **Примеры событий**:
+
 - `modal:open`, `modal:close`
-- `productCards:receive`
 - `modalCard:open`
-- `cart:item:add`, `cart:item:remove`
-- `checkout:payment:select`
-- `checkout:contacts:valid`
-- `success:open`, `success:close`
+- `productCards:receive`
+- `cart:item:add`, `cart:item:remove`, `cart:changed`
+- `checkout:step:payment`, `checkout:step:contacts`
+- `checkout:payment:select`, `checkout:contacts:change`
+- `checkout:validation:contacts`, `checkout:validation:address`
+- `checkout:process:submit`
+- `checkout:success:show`, `order:success:close`
 
 ---
+
+## Логика взаимодействия компонентов
+
+1. `index.ts` связывает все компоненты и презентеры.
+2. Пользователь кликает на карточку — `CatalogView` эмиттит `modalCard:open`.
+3. `CatalogPresenter` создаёт `ProductDetailsView` и передаёт его в модалку.
+4. Кнопка "В корзину" — `ShoppingCartPresenter` обновляет `ShoppingCartModel`, `cartView`, счётчик.
+5. Открытие корзины эмиттит `cart:open`, отображается `ShoppingCartView`.
+6. Кнопка "Оформить" вызывает этап `checkout:step:payment`, далее `checkout:step:contacts`.
+7. `CheckoutPresenter` валидирует ввод через модель, слушает `checkout:process:submit`.
+8. Успешная отправка вызывает `checkout:success:show`, `OrderSuccessView` отображается в модалке.
+
+Все шаги работают через события `EventEmitter` без прямых вызовов между слоями.

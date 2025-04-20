@@ -1,5 +1,6 @@
 import { IEvents } from '../base/events';
 import { CheckoutFormErrors, ICheckoutSubmission } from '../../types';
+import { ERROR_MESSAGES } from '../../utils/constants';
 
 export interface ICheckoutModel {
   payment: string;
@@ -60,13 +61,13 @@ export class CheckoutModel implements ICheckoutModel {
     const errors: typeof this.formErrors = {};
 
     if (!this.address) {
-      errors.address = 'Необходимо указать адрес';
+      errors.address = ERROR_MESSAGES.required;
     } else if (!regexp.test(this.address)) {
       errors.address = 'Укажите настоящий адрес';
     }
 
     if (!this.payment) {
-      errors.payment = 'Выберите способ оплаты';
+      errors.payment = ERROR_MESSAGES.required;
     }
 
     this.formErrors = errors;
@@ -92,9 +93,9 @@ export class CheckoutModel implements ICheckoutModel {
     const errors: typeof this.formErrors = {};
 
     if (!this.email) {
-      errors.email = 'Необходимо указать email';
+      errors.email = ERROR_MESSAGES.emailRequired;
     } else if (!regexpEmail.test(this.email)) {
-      errors.email = 'Введите email в формате name@example.com';
+      errors.email = ERROR_MESSAGES.emailInvalid;
     }
 
     if (this.phone.startsWith('8')) {
@@ -102,9 +103,9 @@ export class CheckoutModel implements ICheckoutModel {
     }
 
     if (!this.phone) {
-      errors.phone = 'Необходимо указать телефон';
+      errors.phone = ERROR_MESSAGES.phoneRequired;
     } else if (!regexpPhone.test(this.phone)) {
-      errors.phone = 'Введите номер в формате +71234567890';
+      errors.phone = ERROR_MESSAGES.phoneInvalid;
     }
 
     this.formErrors = errors;

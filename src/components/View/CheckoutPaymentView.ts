@@ -1,64 +1,64 @@
-import { IEvents } from "../base/events";
 import { Component } from "../base/Component";
+import { IEvents } from "../base/events";
+import { ModalView } from "./ModalView";
 
-// Интерфейс для представления формы выбора оплаты
-export interface ICheckoutPayment {
-  formPayment: HTMLFormElement;
-  buttonAll: HTMLButtonElement[];
-  paymentSelection: string;
-  formErrors: HTMLElement;
-  render(): HTMLElement;
-}
+export class CheckoutPaymentView extends Component<HTMLFormElement> {
+  protected _submitButton: HTMLButtonElement;
+  public formErrors: HTMLElement;
 
-export class CheckoutPaymentView extends Component<HTMLElement> implements ICheckoutPayment {
-  formPayment: HTMLFormElement;
-  buttonAll: HTMLButtonElement[];
-  buttonSubmit: HTMLButtonElement;
-  formErrors: HTMLElement;
-
-  constructor(template: HTMLTemplateElement, protected events: IEvents) {
-    const form = template.content.querySelector('.form')!.cloneNode(true) as HTMLFormElement;
+  constructor(
+    template: HTMLTemplateElement,
+    protected events: IEvents,
+    protected modal: ModalView
+  ) {
+    const form = template.content.querySelector("form")!.cloneNode(true) as HTMLFormElement;
     super(form);
 
-    this.formPayment = form;
-    this.buttonAll = Array.from(form.querySelectorAll('.button_alt'));
-    this.buttonSubmit = form.querySelector('.order__button')!;
-    this.formErrors = form.querySelector('.form__errors')!;
+    this._submitButton = form.querySelector(".order__button")!;
+    this.formErrors = form.querySelector(".form__errors")!;
 
-    // Обработка выбора способа оплаты
-    this.buttonAll.forEach(item => {
-      item.addEventListener('click', () => {
-        this.paymentSelection = item.name;
-        this.events.emit('checkout:payment:select', item);
+    // Кнопки выбора способа оплаты
+    const buttons = form.querySelectorAll(".button_alt");
+
+    buttons.forEach(button => {
+      button.addEventListener("click", () => {
+        // Снять активный класс со всех кнопок
+        buttons.forEach(btn => btn.classList.remove("button_alt-active"));
+
+        // Добавить активный класс выбранной
+        button.classList.add("button_alt-active");
+
+        // Отправить выбранный способ оплаты
+        this.events.emit("checkout:payment:select", button);
       });
     });
 
-    // Обработка ввода адреса
-    form.addEventListener('input', (event: Event) => {
-      const target = event.target as HTMLInputElement;
-      const field = target.name;
-      const value = target.value;
-      this.events.emit('checkout:address:change', { field, value });
+    // Поле адреса доставки
+    const addressInput = form.elements.namedItem("address");
+    if (addressInput instanceof HTMLInputElement) {
+      addressInput.addEventListener("input", (e: Event) => {
+        this.events.emit("checkout:address:change", {
+          field: "address",
+          value: (e.target as HTMLInputElement).value,
+        });
+      });
+    }
+
+    // Отправка формы — переход к шагу 2
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      this.events.emit("checkout:step:contacts");
     });
 
-    // Переход к следующему шагу в контакты
-    form.addEventListener('submit', (event: Event) => {
-      event.preventDefault();
-      this.events.emit('checkout:step:contacts');
+    // Подписка на показ формы оплаты
+    this.events.on("checkout:payment:show", () => {
+      this.modal.content = this.render();
+      this.modal.render();
     });
   }
 
-  set paymentSelection(paymentMethod: string) {
-    this.buttonAll.forEach(item => {
-      item.classList.toggle('button_alt-active', item.name === paymentMethod);
-    });
-  }
-
+  // Управляет доступностью кнопки "Далее"
   set valid(value: boolean) {
-    this.buttonSubmit.disabled = !value;
-  }
-
-  render() {
-    return this.formPayment;
+    this._submitButton.disabled = !value;
   }
 }

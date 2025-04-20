@@ -1,88 +1,68 @@
-import { IEvents } from "../base/events";
 import { Component } from "../base/Component";
-import { ERROR_MESSAGES } from "../../utils/constants";
+import { IEvents } from "../base/events";
+import { ModalView } from "./ModalView";
+import { ICheckoutForm } from "../../types";
 
-// Интерфейс для формы контактов
-export interface IContacts {
-  formContacts: HTMLFormElement;
-  inputAll: HTMLInputElement[];
-  buttonSubmit: HTMLButtonElement;
-  formErrors: HTMLElement;
-  render(): HTMLElement;
-}
-
-export class CheckoutContactsView extends Component<unknown> implements IContacts {
-  public formContacts: HTMLFormElement;
-  public inputAll: HTMLInputElement[];
-  public buttonSubmit: HTMLButtonElement;
+export class CheckoutContactsView extends Component<HTMLFormElement> {
+  protected _submitButton: HTMLButtonElement;
   public formErrors: HTMLElement;
 
-  constructor(template: HTMLTemplateElement, protected events: IEvents) {
-    const element = template.content.firstElementChild!.cloneNode(true) as HTMLFormElement;
-    super(element);
+  constructor(
+    template: HTMLTemplateElement,
+    protected events: IEvents,
+    protected modal: ModalView
+  ) {
+    const form = template.content.querySelector("form")!.cloneNode(true) as HTMLFormElement;
+    super(form);
 
-    this.formContacts = element;
-    this.inputAll = Array.from(element.querySelectorAll(".form__input"));
-    this.buttonSubmit = element.querySelector(".button") as HTMLButtonElement;
-    this.formErrors = element.querySelector(".form__errors") as HTMLElement;
+    this._submitButton = form.querySelector(".button")!;
+    this.formErrors = form.querySelector(".form__errors")!;
 
-    // Обработка ввода
-    this.inputAll.forEach((input) => {
-      input.addEventListener("input", () => {
-        this.clearErrors();
-        this.validateInput(input);
-
-        const field = input.name;
-        const value = input.value;
-
-        // emit событие для обновления модели
-        this.events.emit("checkout:contacts:change", { field, value });
-      });
+    this.events.on("checkout:contacts:show", () => {
+      this.modal.content = this.render();
+      this.modal.render();
     });
 
-    // Обработка отправки формы
-    element.addEventListener("submit", (event: Event) => {
-      event.preventDefault();
+    const emailInput = form.elements.namedItem("email");
+    if (emailInput instanceof HTMLInputElement) {
+      emailInput.addEventListener("input", (e) => {
+        this.events.emit("checkout:contacts:change", {
+          field: "email",
+          value: (e.target as HTMLInputElement).value,
+        });
+      });
+    }
+
+    const phoneInput = form.elements.namedItem("phone");
+    if (phoneInput instanceof HTMLInputElement) {
+      phoneInput.addEventListener("input", (e) => {
+        this.events.emit("checkout:contacts:change", {
+          field: "phone",
+          value: (e.target as HTMLInputElement).value,
+        });
+      });
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
       this.events.emit("checkout:process:submit");
     });
+
+    this.events.on("checkout:validation:contacts", (errors: Partial<ICheckoutForm>) => {
+      const { email, phone } = errors;
+
+      this.valid = !email && !phone;
+
+      this.formErrors.textContent = Object.values({ phone, email })
+        .filter(Boolean)
+        .join("; ");
+    });
   }
 
-  // Валидатор активности кнопки
   set valid(value: boolean) {
-    this.buttonSubmit.disabled = !value;
+    this._submitButton.disabled = !value;
   }
 
-  // Валидация конкретного инпута
-  validateInput(input: HTMLInputElement): boolean {
-    let error = "";
-
-    if (!input.value.trim()) {
-      error = ERROR_MESSAGES.required;
-    } else if (input.name === "email" && !/\S+@\S+\.\S+/.test(input.value)) {
-      error = ERROR_MESSAGES.invalidEmail;
-    } else if (input.name === "phone" && !/^\+?\d{10,15}$/.test(input.value)) {
-      error = ERROR_MESSAGES.invalidPhone;
-    }
-
-    if (error) {
-      this.formErrors.textContent = error;
-      return false;
-    }
-
-    return true;
-  }
-
-  // Проверка всей формы
-  validateForm(): boolean {
-    return this.inputAll.every((input) => this.validateInput(input));
-  }
-
-  // Очистка ошибок
-  clearErrors() {
-    this.formErrors.textContent = "";
-  }
-
-  // Рендер
   render(): HTMLElement {
     return this.container;
   }
