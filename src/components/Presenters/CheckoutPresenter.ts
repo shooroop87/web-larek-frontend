@@ -24,8 +24,7 @@ export class CheckoutPresenter {
     // Открытие модального окна выбора способа оплаты
     this.events.on('checkout:step:payment', () => {
       this.checkoutModel.items = this.cartModel.products.map(item => item.id);
-      this.modal.content = this.paymentView.render();
-      this.modal.render();
+      this.events.emit('modal:open', this.paymentView.render());
     });
 
     // Выбор способа оплаты
@@ -68,8 +67,13 @@ export class CheckoutPresenter {
     this.events.on('checkout:process:submit', () => {
       this.api.submitOrder(this.checkoutModel.getOrderData())
         .then((data) => {
-          const successView = new OrderSuccessView(this.successTemplate, this.events);
-          this.modal.content = successView.render(this.cartModel.getTotal());
+          const successView = new OrderSuccessView(this.successTemplate);
+
+          successView.setCloseHandler(() => {
+            this.events.emit('order:success:close');
+          });
+      
+          this.modal.content = successView.render({ total: this.cartModel.getTotal() });
           this.cartModel.clear();
           
           if (this.cartView) {

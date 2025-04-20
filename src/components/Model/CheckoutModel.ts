@@ -1,7 +1,6 @@
 import { IEvents } from '../base/events';
-import { CheckoutFormErrors } from '../../types/index'
+import { CheckoutFormErrors, ICheckoutSubmission } from '../../types';
 
-// Интерфейс, описывающий модель оформления заказа
 export interface ICheckoutModel {
   payment: string;
   email: string;
@@ -9,33 +8,26 @@ export interface ICheckoutModel {
   address: string;
   total: number;
   items: string[];
+  formErrors: CheckoutFormErrors;
   setAddress(field: string, value: string): void;
   validatePaymentStep(): boolean;
   setContactData(field: string, value: string): void;
   validateContactsStep(): boolean;
-  getOrderData(): object;
+  getOrderData(): ICheckoutSubmission;
+  update(field: string, value: string): void;
 }
 
-// Класс модели оформления заказа
 export class CheckoutModel implements ICheckoutModel {
-  payment: string;
-  email: string;
-  phone: string;
-  address: string;
-  total: number;
-  items: string[];
+  payment = '';
+  email = '';
+  phone = '';
+  address = '';
+  total = 0;
+  items: string[] = [];
   formErrors: CheckoutFormErrors = {};
 
-  constructor(protected events: IEvents) {
-    this.payment = '';
-    this.email = '';
-    this.phone = '';
-    this.address = '';
-    this.total = 0;
-    this.items = [];
-  }
+  constructor(protected events: IEvents) {}
 
-  // Адрес доставки
   setAddress(field: string, value: string) {
     if (field === 'address') {
       this.address = value;
@@ -46,8 +38,24 @@ export class CheckoutModel implements ICheckoutModel {
     }
   }
 
-  // Валидация этапа оплаты
-  validatePaymentStep() {
+  update(field: string, value: string): void {
+    if (field === 'address') {
+      this.address = value;
+    } else if (field === 'payment') {
+      this.payment = value;
+    }
+
+    const isValid = this.validatePaymentStep();
+
+    if (isValid) {
+      this.events.emit('checkout:payment:valid', this.getOrderData());
+      this.events.emit('checkout:step:contacts');
+    }
+
+    this.events.emit('checkout:payment:validity', { valid: isValid });
+  }
+
+  validatePaymentStep(): boolean {
     const regexp = /^[а-яА-ЯёЁa-zA-Z0-9\s\/.,-]{7,}$/;
     const errors: typeof this.formErrors = {};
 
@@ -55,7 +63,9 @@ export class CheckoutModel implements ICheckoutModel {
       errors.address = 'Необходимо указать адрес';
     } else if (!regexp.test(this.address)) {
       errors.address = 'Укажите настоящий адрес';
-    } else if (!this.payment) {
+    }
+
+    if (!this.payment) {
       errors.payment = 'Выберите способ оплаты';
     }
 
@@ -64,7 +74,6 @@ export class CheckoutModel implements ICheckoutModel {
     return Object.keys(errors).length === 0;
   }
 
-  // Контактные данные
   setContactData(field: string, value: string) {
     if (field === 'email') {
       this.email = value;
@@ -77,8 +86,7 @@ export class CheckoutModel implements ICheckoutModel {
     }
   }
 
-  // Валидация контактных данных
-  validateContactsStep() {
+  validateContactsStep(): boolean {
     const regexpEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
     const regexpPhone = /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{10}$/;
     const errors: typeof this.formErrors = {};
@@ -104,8 +112,7 @@ export class CheckoutModel implements ICheckoutModel {
     return Object.keys(errors).length === 0;
   }
 
-  // Получение всех данных заказа
-  getOrderData() {
+  getOrderData(): ICheckoutSubmission {
     return {
       payment: this.payment,
       email: this.email,

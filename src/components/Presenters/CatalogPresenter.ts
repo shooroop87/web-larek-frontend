@@ -33,15 +33,15 @@ export class CatalogPresenter {
 
     // Открытие модального окна с деталями товара
     this.events.on('modalCard:open', (item: IProduct) => {
-        const details = new ProductDetailsView(this.previewTemplate, this.events);
-        this.events.emit('modal:content', details.render(item));
+      const details = new ProductDetailsView(this.previewTemplate, this.events);
+      this.events.emit('modal:open', details.render(item));
     });
   }
 
   private renderCatalog() {
     const container = ensureElement<HTMLElement>('.gallery');
     container.innerHTML = '';
-    
+
     this.model.products.forEach(item => {
       const card = new ProductItemView(this.cardTemplate, this.events, {
         onClick: () => this.events.emit('catalog:product:select', item)

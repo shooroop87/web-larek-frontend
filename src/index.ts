@@ -36,14 +36,14 @@ const modal = new ModalView(ensureElement<HTMLElement>('#modal-container'), even
 
 // ==================== Инициализация моделей ====================
 const catalogModel = new ProductCollectionModel(events);
-const cartModel = new ShoppingCartModel();
+const cartModel = new ShoppingCartModel(events);
 const checkoutModel = new CheckoutModel(events);
 
 // ==================== Инициализация представлений ====================
 const cartView = new ShoppingCartView(cartTemplate, events);
 const paymentView = new CheckoutPaymentView(checkoutPaymentTemplate, events);
 const contactsView = new CheckoutContactsView(checkoutContactsTemplate, events);
-const successView = new OrderSuccessView(successTemplate, events);
+const successView = new OrderSuccessView(successTemplate);
 
 // ==================== Инициализация презентеров ====================
 const catalogPresenter = new CatalogPresenter(
@@ -64,14 +64,15 @@ const cartPresenter = new ShoppingCartPresenter(
 );
 
 const checkoutPresenter = new CheckoutPresenter(
-  events, 
-  checkoutModel, 
-  cartModel, 
-  api, 
+  events,
+  checkoutModel,
+  cartModel,
+  api,
   paymentView,
   contactsView,
   successTemplate,
-  modal
+  modal,
+  cartView
 );
 
 // ==================== Обработчики модальных окон ====================
@@ -88,50 +89,3 @@ document.querySelectorAll('.modal__close').forEach((btn) => {
     modal.close();
   });
 });
-
-// ==================== Обработка стартовой карточки ====================
-setTimeout(() => {
-  const startupModal = document.querySelector('.modal_active');
-  if (startupModal) {
-    // Получаю данные из DOM
-    const cardTitle = startupModal.querySelector('.card__title')?.textContent || '';
-    const cardPrice = parseInt((startupModal.querySelector('.card__price')?.textContent || '0').replace(/\D/g, ''));
-    const cardCategory = startupModal.querySelector('.card__category')?.textContent || '';
-    const cardText = startupModal.querySelector('.card__text')?.textContent || '';
-    
-    // Создаю объект карточки
-    const startupCardData: IProduct = {
-      id: 'startup-card-' + Date.now(),
-      title: cardTitle,
-      price: cardPrice,
-      category: cardCategory,
-      description: cardText,
-      image: ''
-    };
-    
-    // Устанавливаю карточку как выбранную в модели
-    catalogModel.selectedProduct = startupCardData;
-    
-    // Переназначаню обработчик закрытия модального окна
-    const closeButton = startupModal.querySelector('.modal__close');
-    if (closeButton) {
-      const newCloseButton = closeButton.cloneNode(true);
-      closeButton.parentNode?.replaceChild(newCloseButton, closeButton);
-      newCloseButton.addEventListener('click', () => {
-        startupModal.classList.remove('modal_active');
-      });
-    }
-    
-    // Переназначаню обработчик добавления товара в корзину
-    const addButton = startupModal.querySelector('.button');
-    if (addButton) {
-      const newAddButton = addButton.cloneNode(true);
-      addButton.parentNode?.replaceChild(newAddButton, addButton);
-      newAddButton.addEventListener('click', () => {
-        cartModel.addProduct(startupCardData);
-        cartView.renderHeaderCartCounter(cartModel.getItemCount());
-        startupModal.classList.remove('modal_active');
-      });
-    }
-  }
-}, 100);

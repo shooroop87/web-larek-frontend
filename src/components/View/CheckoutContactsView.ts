@@ -1,6 +1,8 @@
 import { IEvents } from "../base/events";
+import { Component } from "../base/Component";
+import { ERROR_MESSAGES } from "../../utils/constants";
 
-// Интерфейс дял формы с контактными данными
+// Интерфейс для формы контактов
 export interface IContacts {
   formContacts: HTMLFormElement;
   inputAll: HTMLInputElement[];
@@ -9,43 +11,79 @@ export interface IContacts {
   render(): HTMLElement;
 }
 
-// Класс представления формы с контактными данными
-export class CheckoutContactsView implements IContacts {
-  formContacts: HTMLFormElement;
-  inputAll: HTMLInputElement[];
-  buttonSubmit: HTMLButtonElement;
-  formErrors: HTMLElement;
+export class CheckoutContactsView extends Component<unknown> implements IContacts {
+  public formContacts: HTMLFormElement;
+  public inputAll: HTMLInputElement[];
+  public buttonSubmit: HTMLButtonElement;
+  public formErrors: HTMLElement;
 
   constructor(template: HTMLTemplateElement, protected events: IEvents) {
-    this.formContacts = template.content.querySelector('.form').cloneNode(true) as HTMLFormElement;
-    this.inputAll = Array.from(this.formContacts.querySelectorAll('.form__input'));
-    this.buttonSubmit = this.formContacts.querySelector('.button');
-    this.formErrors = this.formContacts.querySelector('.form__errors');
+    const element = template.content.firstElementChild!.cloneNode(true) as HTMLFormElement;
+    super(element);
 
-    // Обработка ввода в поля формы
-    this.inputAll.forEach(item => {
-      item.addEventListener('input', (event) => {
-        const target = event.target as HTMLInputElement;
-        const field = target.name;
-        const value = target.value;
-        this.events.emit(`contacts:changeInput`, { field, value });
+    this.formContacts = element;
+    this.inputAll = Array.from(element.querySelectorAll(".form__input"));
+    this.buttonSubmit = element.querySelector(".button") as HTMLButtonElement;
+    this.formErrors = element.querySelector(".form__errors") as HTMLElement;
+
+    // Обработка ввода
+    this.inputAll.forEach((input) => {
+      input.addEventListener("input", () => {
+        this.clearErrors();
+        this.validateInput(input);
+
+        const field = input.name;
+        const value = input.value;
+
+        // emit событие для обновления модели
+        this.events.emit("checkout:contacts:change", { field, value });
       });
     });
 
     // Обработка отправки формы
-    this.formContacts.addEventListener('submit', (event: Event) => {
+    element.addEventListener("submit", (event: Event) => {
       event.preventDefault();
-      this.events.emit('success:open');
+      this.events.emit("checkout:process:submit");
     });
   }
 
-  // Определяю валидность кнопки
+  // Валидатор активности кнопки
   set valid(value: boolean) {
     this.buttonSubmit.disabled = !value;
   }
 
-  // Рендерю форму
-  render() {
-    return this.formContacts;
+  // Валидация конкретного инпута
+  validateInput(input: HTMLInputElement): boolean {
+    let error = "";
+
+    if (!input.value.trim()) {
+      error = ERROR_MESSAGES.required;
+    } else if (input.name === "email" && !/\S+@\S+\.\S+/.test(input.value)) {
+      error = ERROR_MESSAGES.invalidEmail;
+    } else if (input.name === "phone" && !/^\+?\d{10,15}$/.test(input.value)) {
+      error = ERROR_MESSAGES.invalidPhone;
+    }
+
+    if (error) {
+      this.formErrors.textContent = error;
+      return false;
+    }
+
+    return true;
+  }
+
+  // Проверка всей формы
+  validateForm(): boolean {
+    return this.inputAll.every((input) => this.validateInput(input));
+  }
+
+  // Очистка ошибок
+  clearErrors() {
+    this.formErrors.textContent = "";
+  }
+
+  // Рендер
+  render(): HTMLElement {
+    return this.container;
   }
 }

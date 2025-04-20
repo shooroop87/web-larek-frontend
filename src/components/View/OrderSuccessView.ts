@@ -1,33 +1,29 @@
-import { IEvents } from "../base/events";
+import { Component } from "../base/Component";
 
-// Интерфейс для представления успешного оформления заказа
-export interface ISuccess {
-  success: HTMLElement;
-  description: HTMLElement;
-  button: HTMLButtonElement;
-  render(total: number): HTMLElement;
+interface ISuccessViewModel {
+  total: number;
 }
 
-// Класс для представления успешного оформления заказа
-export class OrderSuccessView {
-  success: HTMLElement;
-  description: HTMLElement;
-  button: HTMLButtonElement;
+export class OrderSuccessView extends Component<ISuccessViewModel> {
+  protected title: HTMLElement;
+  protected description: HTMLElement;
+  protected button: HTMLButtonElement;
 
-  constructor(template: HTMLTemplateElement, protected events: IEvents) {
-    this.success = template.content.querySelector('.order-success').cloneNode(true) as HTMLElement;
-    this.description = this.success.querySelector('.order-success__description');
-    this.button = this.success.querySelector('.order-success__close');
+  constructor(template: HTMLTemplateElement) {
+    const container = template.content.firstElementChild!.cloneNode(true) as HTMLElement;
+    super(container);
 
-    // Обработка закрытия
-    this.button.addEventListener('click', () => { 
-      events.emit('success:close');
-    });
+    this.title = container.querySelector(".order-success__title") as HTMLElement;
+    this.description = container.querySelector(".order-success__description") as HTMLElement;
+    this.button = container.querySelector(".order-success__close") as HTMLButtonElement;
   }
 
-  // Рендерю итоговую сумму
-  render(total: number) {
-    this.description.textContent = String(`Списано ${total} синапсов`);
-    return this.success;
+  render(data?: Partial<ISuccessViewModel>): HTMLElement {
+    this.setText(this.description, `Списано ${data?.total ?? 0} синапсов`);
+    return this.container;
+  }
+
+  setCloseHandler(callback: () => void): void {
+    this.button.addEventListener("click", callback);
   }
 }
