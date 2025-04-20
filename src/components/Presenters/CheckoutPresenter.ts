@@ -60,7 +60,7 @@ export class CheckoutPresenter {
         .join("; ");
     });
 
-    // Обработка финального сабмита
+    // Обработка отправки
     this.events.on("checkout:process:submit", () => {
       const isValid = this.checkoutModel.validateContactsStep();
 
