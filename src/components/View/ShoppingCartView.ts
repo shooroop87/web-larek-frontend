@@ -34,7 +34,6 @@ export class ShoppingCartView extends Component<HTMLElement> implements IShoppin
     this.checkoutButton = basket.querySelector('.basket__button')!;
     this.cartTotal = basket.querySelector('.basket__price')!;
 
-    // Создаем элемент для пустой корзины заранее
     this._emptyCartElement = createElement<HTMLParagraphElement>('p', { textContent: 'Корзина пуста' });
 
     this.checkoutButton.addEventListener('click', () => {
@@ -63,7 +62,6 @@ export class ShoppingCartView extends Component<HTMLElement> implements IShoppin
       this.checkoutButton.removeAttribute('disabled');
     } else {
       this.checkoutButton.setAttribute('disabled', 'disabled');
-      // Используем заранее созданный элемент
       this.cartList.replaceChildren(this._emptyCartElement);
     }
   }
