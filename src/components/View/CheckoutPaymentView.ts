@@ -44,11 +44,11 @@ export class CheckoutPaymentView extends Component<HTMLFormElement> {
       e.preventDefault();
       this.events.emit("checkout:step:contacts");
     });
+  }
 
-    this.events.on("checkout:payment:show", () => {
-      this.modal.content = this.render();
-      this.modal.render();
-    });
+  showPayment(): void {
+    this.modal.content = this.render();
+    this.modal.render();
   }
 
   // Управляет доступностью кнопки "Далее"
