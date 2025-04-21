@@ -18,11 +18,6 @@ export class CheckoutContactsView extends Component<HTMLFormElement> {
     this._submitButton = form.querySelector(".button")!;
     this.formErrors = form.querySelector(".form__errors")!;
 
-    this.events.on("checkout:contacts:show", () => {
-      this.modal.content = this.render();
-      this.modal.render();
-    });
-
     const emailInput = form.elements.namedItem("email");
     if (emailInput instanceof HTMLInputElement) {
       emailInput.addEventListener("input", (e) => {
@@ -47,16 +42,11 @@ export class CheckoutContactsView extends Component<HTMLFormElement> {
       e.preventDefault();
       this.events.emit("checkout:process:submit");
     });
+  }
 
-    this.events.on("checkout:validation:contacts", (errors: Partial<ICheckoutForm>) => {
-      const { email, phone } = errors;
-
-      this.valid = !email && !phone;
-
-      this.formErrors.textContent = Object.values({ phone, email })
-        .filter(Boolean)
-        .join("; ");
-    });
+  showContacts(): void {
+    this.modal.content = this.render();
+    this.modal.render();
   }
 
   set valid(value: boolean) {
