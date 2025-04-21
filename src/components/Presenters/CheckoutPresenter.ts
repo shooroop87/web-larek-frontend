@@ -80,12 +80,12 @@ export class CheckoutPresenter {
           this.cartModel.clear();
           const total = this.checkoutModel.total;
           
-          // Подготавливаем отображение успешного заказа
+          // Готовлю отображение успешного заказа
           const content = this.successView.render({ total });
           this.modal.content = content;
           this.modal.render();
           
-          // Настраиваем обработчик закрытия
+          // Настраиваю обработчик закрытия
           this.successView.setCloseHandler(() => {
             this.modal.close();
             this.events.emit("order:success:close");
@@ -97,6 +97,9 @@ export class CheckoutPresenter {
           } else {
             this.events.emit("cart:counter:update", { count: 0 });
           }
+          
+          // Очищаю данные после успешного заказа
+          this.checkoutModel.clear();
         })
         .catch((error) => console.error("Ошибка при отправке заказа:", error));
     });
