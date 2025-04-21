@@ -32,6 +32,11 @@ export class CheckoutPresenter {
       this.events.emit("checkout:payment:show");
     });
 
+    // Показ формы оплаты (перенесено из представления)
+    this.events.on("checkout:payment:show", () => {
+      this.paymentView.showPayment();
+    });
+
     this.events.on("checkout:payment:select", (button: HTMLButtonElement) => {
       this.checkoutModel.payment = button.name;
     });
@@ -54,10 +59,16 @@ export class CheckoutPresenter {
       this.events.emit("checkout:contacts:show");
     });
 
+    // Показ формы контактов (перенесено из представления)
+    this.events.on("checkout:contacts:show", () => {
+      this.contactsView.showContacts();
+    });
+
     this.events.on("checkout:contacts:change", (data: { field: string; value: string }) => {
       this.checkoutModel.setContactData(data.field, data.value);
     });
 
+    // Валидация контактов (перенесено из представления)
     this.events.on("checkout:validation:contacts", (errors: Partial<ICheckoutForm>) => {
       const { email, phone } = errors;
       this.contactsView.valid = !email && !phone;
