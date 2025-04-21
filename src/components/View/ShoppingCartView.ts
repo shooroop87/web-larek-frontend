@@ -46,10 +46,6 @@ export class ShoppingCartView extends Component<HTMLElement> implements IShoppin
     });
   }
 
-  /**
-   * Создание и рендеринг элементов корзины
-   * Перенесено из ShoppingCartPresenter для соблюдения принципа разделения ответственности
-   */
   updateCartItems(products: IProduct[], template: HTMLTemplateElement): void {
     const cartItems = products.map((item, index) => {
       const cartItem = new CartItemView(template, this.events, {
