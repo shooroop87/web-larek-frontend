@@ -42,13 +42,12 @@ export class ModalView extends Component<IModalData> implements IModalView {
       event => event.stopPropagation()
     );
     
-    // Обработка события modal:open из других компонентов
+    // Обработка события modal:open
     this.events.on('modal:open', (content: HTMLElement) => {
       if (content) {
         this.content = content;
       }
       
-      // Не вызываем open() здесь, чтобы избежать рекурсии
       this._container.classList.add('modal_active');
     });
   }
@@ -61,7 +60,6 @@ export class ModalView extends Component<IModalData> implements IModalView {
   // Открытие модального окна
   open(): void {
     this._container.classList.add('modal_active');
-    // Не генерируем событие modal:open здесь, чтобы избежать рекурсии
   }
 
   // Закрытие модального окна
