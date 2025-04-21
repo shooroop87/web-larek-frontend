@@ -16,6 +16,7 @@ export interface ICheckoutModel {
   validateContactsStep(): boolean;
   getOrderData(): ICheckoutSubmission;
   update(field: string, value: string): void;
+  clear(): void;
 }
 
 export class CheckoutModel implements ICheckoutModel {
@@ -119,5 +120,16 @@ export class CheckoutModel implements ICheckoutModel {
       total: this.total,
       items: this.items,
     };
+  }
+
+  // Метод для очистки данных после заказа
+  clear(): void {
+    this.payment = '';
+    this.email = '';
+    this.phone = '';
+    this.address = '';
+    this.total = 0;
+    this.items = [];
+    this.formErrors = {};
   }
 }
