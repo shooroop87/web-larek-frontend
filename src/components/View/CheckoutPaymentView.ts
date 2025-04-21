@@ -22,13 +22,8 @@ export class CheckoutPaymentView extends Component<HTMLFormElement> {
 
     buttons.forEach(button => {
       button.addEventListener("click", () => {
-        // Снять активный класс со всех кнопок
         buttons.forEach(btn => btn.classList.remove("button_alt-active"));
-
-        // Добавить активный класс выбранной
         button.classList.add("button_alt-active");
-
-        // Отправить выбранный способ оплаты
         this.events.emit("checkout:payment:select", button);
       });
     });
@@ -50,7 +45,6 @@ export class CheckoutPaymentView extends Component<HTMLFormElement> {
       this.events.emit("checkout:step:contacts");
     });
 
-    // Подписка на показ формы оплаты
     this.events.on("checkout:payment:show", () => {
       this.modal.content = this.render();
       this.modal.render();
